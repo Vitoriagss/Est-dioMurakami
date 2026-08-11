@@ -3,7 +3,7 @@ import { Montserrat, Playfair_Display, Geist } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 const montserrat = Montserrat({
   variable: "--font-montserrat-sans",
@@ -23,8 +23,15 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="pt-BR"
-      className={cn("h-full", "antialiased", montserrat.variable, playfairDisplay.variable, "font-sans", geist.variable)}
+      lang="en"
+      className={cn(
+        "h-full",
+        "antialiased",
+        montserrat.variable,
+        playfairDisplay.variable,
+        "font-sans",
+        geist.variable,
+      )}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Calendar } from "../ui/calendar";
+import { ptBR } from "date-fns/locale";
 import { Card, CardContent, CardFooter } from "../ui/card";
 import { Field, FieldGroup, FieldLabel } from "../ui/field";
 import {
@@ -101,11 +102,12 @@ export default function FormsAgenda() {
             Selecione uma data e um horário
           </h1>
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-8">
           <Card size="default" className=" w-fit">
             <CardContent>
               <Calendar
                 mode="single"
+                locale={ptBR}
                 selected={date}
                 onSelect={setDate}
                 className="p-0 [--cell-size:--spacing(12)]"
