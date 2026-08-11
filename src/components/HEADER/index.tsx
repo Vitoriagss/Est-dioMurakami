@@ -4,7 +4,7 @@ export default function Header() {
   return (
     <div className="flex items-center sticky top-0 z-50 px-12 py-4 justify-between bg-branco drop-shadow-lg">
       <div className="relative h-20 w-20">
-        <Image src="/img/Logo-nome-SemFundo.png" alt="" fill />
+        <Image src="/img/Logo-nome-SemFundo.png" alt="" fill sizes="100px" />
       </div>
 
       <div className="flex gap-8 items-center font-semibold">
