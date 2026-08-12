@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Header() {
   return (
@@ -10,7 +11,7 @@ export default function Header() {
       <div className="flex gap-8 items-center font-semibold">
         <h1 className="text-lg">Sobre nos</h1>
         <h1 className="text-lg">Agendamentos</h1>
-        <h1 className="text-lg">Status</h1>
+        <Link href="/status" className="text-lg">Status</Link>
         <h1 className="text-lg">Contatos</h1>
 
         <button className="border xl px-2 py-2 text-xl rounded-2xl">

@@ -4,6 +4,8 @@ import { buscarAgendamentoPorContato, cancelarAgendamento } from "@/lib/buscarAg
 import { Agendamento } from "@/lib/types";
 import CancelamentoModal from "@/components/CancelamentoModal";
 import { useState } from "react";
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 
 export default function StatusPage() {
   const [busca, setBusca] = useState("");
@@ -48,6 +50,14 @@ export default function StatusPage() {
   return (
     <main className="grow py-12 bg-branco">
       <div className="container mx-auto px-4 max-w-2xl">
+        <Link
+          href="/"
+          className="flex items-center text-vermelho hover:opacity-80 transition-opacity mb-6 w-fit"
+        >
+          <ChevronLeft size={20} />
+          Voltar para o início
+        </Link>
+
         <h1 className="font-(family-name:--font-playfair) text-3xl sm:text-4xl font-bold text-center mb-2 text-primaria">
           Consultar Agendamento
         </h1>
