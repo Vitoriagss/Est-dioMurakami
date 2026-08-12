@@ -76,8 +76,8 @@ export function DynamicTimePicker({
   };
 
   return (
-    <ScrollArea className="h-fit w-full rounded-md border p-4">
-      <div className="grid grid-cols-4 gap-2 w-full">
+    <ScrollArea className="h-fit rounded-md border p-4">
+      <div className="grid grid-cols-4 gap-2 text-md md:text-sm">
         {Hours.map((hour) => {
           const disabled = isTimeDisabled(hour);
           const selected = isInRange(hour);

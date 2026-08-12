@@ -37,14 +37,14 @@ export default function FormsAgenda({
     setFormData((prev) => ({
       ...prev,
       data: newDate,
-      horario: [], // Limpa os horários ao trocar a data
+      horario: [],
     }));
   };
 
   const handleReservaConcluida = (range: string[]) => {
     setFormData((prev) => ({
       ...prev,
-      horario: range, // Corrigido para salvar na propriedade 'horario'
+      horario: range,
     }));
   };
 
@@ -58,7 +58,6 @@ export default function FormsAgenda({
 
     console.log("Formulário Enviado com Sucesso:", formData);
 
-    // Reset do formulário
     setFormData({
       nome: "",
       email: "",
@@ -74,7 +73,7 @@ export default function FormsAgenda({
   const dateFormatted = formData.data ? format(formData.data, "dd/MM") : "";
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-4 max-w-3xl">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-6xl">
       <section className="flex flex-col py-12 px-6 gap-12 bg-gray-100 rounded-xl drop-shadow-xl w-full">
         {/* Seção 1: Seus Dados */}
         <div className="flex flex-col gap-8">
@@ -84,7 +83,7 @@ export default function FormsAgenda({
             </span>
             <h1 className="text-2xl font-semibold">Seus Dados</h1>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col md:grid md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
               <h1>Nome Completo</h1>
               <input
@@ -180,19 +179,19 @@ export default function FormsAgenda({
               Selecione uma data e um horário
             </h1>
           </div>
-          <div className="flex justify-between gap-8">
-            <Card size="default" className="w-full max-h-100 items-center">
-              <CardContent>
+          <div className="flex flex-wrap flex-col lg:justify-center lg:flex-row justify-between gap-8">
+            <Card size="default" className="min-w-60 max-h-100">
+              <CardContent className="flex justify-center">
                 <Calendar
                   mode="single"
                   locale={ptBR}
                   selected={formData.data}
                   onSelect={handleDateChange}
-                  className="p-0 [--cell-size:--spacing(12)]"
+                  className="p-0 [--cell-size:--spacing(8)] md:[--cell-size:--spacing(12)] lg:[--cell-size:--spacing(15)]"
                 />
               </CardContent>
             </Card>
-            <div className="flex flex-col gap-4 w-full">
+            <div className="flex flex-col gap-4">
               <h3>
                 Horários Disponíveis {dateFormatted && `(${dateFormatted})`}
               </h3>
