@@ -46,9 +46,9 @@ export default function Agendamentos() {
       : "Selecione um horário";
 
   return (
-    <main className="bg-branco grow container mx-auto">
+    <main className="bg-branco grow">
       <Header />
-      <div className="flex flex-col px-16 py-12 gap-4">
+      <div className="container mx-auto flex flex-col px-16 py-12 gap-4">
         {/* Título */}
         <section>
           <div className="flex flex-col gap-6">
