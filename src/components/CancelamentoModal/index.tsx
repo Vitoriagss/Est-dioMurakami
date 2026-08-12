@@ -1,4 +1,3 @@
-// src/components/CancelamentoModal/index.tsx
 "use client";
 
 import { Agendamento } from "@/lib/types";
