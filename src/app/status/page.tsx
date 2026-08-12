@@ -6,6 +6,7 @@ import CancelamentoModal from "@/components/CancelamentoModal";
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
+import { toast } from "sonner";
 
 export default function StatusPage() {
   const [busca, setBusca] = useState("");
@@ -35,17 +36,19 @@ export default function StatusPage() {
     }
   };
 
-  const handleConfirmarCancelamento = async () => {
+    const handleConfirmarCancelamento = async () => {
     if (!agendamento) return;
     try {
-      await cancelarAgendamento(agendamento.id);
-      setAgendamento({ ...agendamento, status: "cancelado" });
-      setIsCancelModalOpen(false);
+        await cancelarAgendamento(agendamento.id);
+        setAgendamento({ ...agendamento, status: "cancelado" });
+        setIsCancelModalOpen(false);
+        toast.success("Agendamento cancelado com sucesso!");
     } catch (error) {
-      console.error("Erro ao cancelar agendamento", error);
-      setErro("Não foi possível cancelar o agendamento. Tente novamente.");
+        console.error("Erro ao cancelar agendamento", error);
+        setErro("Não foi possível cancelar o agendamento. Tente novamente.");
+        toast.error("Erro ao cancelar o agendamento.");
     }
-  };
+    };
 
   return (
     <main className="grow py-12 bg-branco">
