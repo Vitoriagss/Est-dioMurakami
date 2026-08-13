@@ -13,10 +13,10 @@ export default function Header() {
             <Link href="" className="hidden lg:flex text-lg">
               Sobre nos
             </Link>
-            <Link href="" className="text-md lg:text-lg">
+            <Link href="/agendamentos" className="text-md lg:text-lg">
               Agendamentos
             </Link>
-            <Link href="" className="text-md lg:text-lg">
+            <Link href="/status" className="text-md lg:text-lg">
               Status
             </Link>
             <Link href="" className="hidden lg:flex text-lg">

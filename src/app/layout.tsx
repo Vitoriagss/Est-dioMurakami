@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Montserrat, Playfair_Display, Geist } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col bg-branco grow">
         {children}
+        <Toaster richColors position="bottom-right" />
       </body>
     </html>
   );
