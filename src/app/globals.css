@@ -9,6 +9,47 @@
   }
 }
 
+.slice {
+  --c2: var(--primaria);
+
+  background-color: var(--secundaria);
+  border: 2px solid var(--secundaria);
+  cursor: pointer;
+
+  overflow: hidden;
+  position: relative;
+  transition: 300ms cubic-bezier(0.83, 0, 0.17, 1);
+}
+
+.slice > .text {
+  position: relative;
+  z-index: 1;
+}
+
+.slice::after {
+  content: "";
+
+  width: 0;
+  height: calc(300% + 1em);
+
+  position: absolute;
+  translate: -50% -50%;
+  inset: 50%;
+  rotate: 30deg;
+
+  background-color: var(--c2);
+  transition: 500ms cubic-bezier(0.83, 0, 0.17, 1);
+}
+
+.slice:hover::after {
+  width: calc(120% + 1em);
+}
+
+.slice:active {
+  scale: 0.98;
+  filter: brightness(0.9);
+}
+
 :root {
   --primaria: #1f2b23;
   --secundaria: #4a5a4a;
@@ -135,6 +176,7 @@
   }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
   }
   :root {
     --primaria: #1f2b23;

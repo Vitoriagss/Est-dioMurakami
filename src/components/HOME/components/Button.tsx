@@ -10,9 +10,9 @@ export function Button({ href, children }: ButtonProps) {
   return (
     <Link
       href={href}
-      className="px-4 py-3 bg-secundaria rounded-[32px] flex justify-center items-center"
+      className="slice px-4 py-3 rounded-[32px] flex justify-center items-center"
     >
-      <span className="font-(family-name:--font-montserrat-sans) text-orange-50 text-lg lg:text-xl font-semibold">
+      <span className="text font-(family-name:--font-montserrat-sans) text-orange-50 text-lg lg:text-xl font-semibold">
         {children}
       </span>
     </Link>
