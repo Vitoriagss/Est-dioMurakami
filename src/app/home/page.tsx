@@ -9,6 +9,9 @@ import vectorHourglass from "@/components/HOME/Vector-2.svg";
 import emailIcon from "@/components/HOME/Email.svg";
 import phoneIcon from "@/components/HOME/Phone.svg";
 import instagramIcon from "@/components/HOME/Instagram.svg";
+import corporativoImg from "@/components/HOME/corporativo.jpg";
+import autonomosImg from "@/components/HOME/autonomos.jpg";
+import startupImg from "@/components/HOME/startup.jpg";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -21,7 +24,11 @@ const SERVICOS = [
   "Diagnóstico Financeiro",
 ];
 
-const SEGMENTOS = ["Corporativo", "Autônomos", "Startups"];
+const SEGMENTOS = [
+  { nome: "Corporativo", imagem: corporativoImg },
+  { nome: "Autônomos", imagem: autonomosImg },
+  { nome: "Startups", imagem: startupImg },
+];
 
 export default function Home() {
   return (
@@ -153,14 +160,18 @@ export default function Home() {
         </h2>
 
         <div className="flex flex-wrap justify-center items-start gap-10">
-          {SEGMENTOS.map((segmento) => (
+          {SEGMENTOS.map(({ nome, imagem }) => (
             <div
-              key={segmento}
+              key={nome}
               className="w-72 lg:w-80 flex flex-col items-center gap-2.5"
             >
-              <div className="self-stretch h-64 bg-zinc-300" />
+              <Image
+                src={imagem}
+                alt={nome}
+                className="self-stretch w-full h-64 object-cover border border-black/20"
+              />
               <p className="font-(family-name:--font-montserrat-sans) text-xl font-semibold text-black">
-                {segmento}
+                {nome}
               </p>
             </div>
           ))}
