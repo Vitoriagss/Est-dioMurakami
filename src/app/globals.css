@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 :root {
   --primaria: #1f2b23;
   --secundaria: #4a5a4a;
