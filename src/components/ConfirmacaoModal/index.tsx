@@ -23,7 +23,7 @@ export default function ConfirmacaoModal({ agendamento, onClose, onConfirm }: Co
           <button onClick={onClose} className="px-5 py-2 rounded-2xl border border-bege hover:bg-bege/30 transition-colors">
             Voltar
           </button>
-          <button onClick={onConfirm} className="px-5 py-2 rounded-2xl bg-secundaria text-white hover:opacity-90 transition-opacity">
+          <button onClick={onConfirm} className="px-5 py-2 rounded-2xl bg-green-700 text-white hover:opacity-90 transition-opacity">
             Confirmar agendamento
           </button>
         </div>
