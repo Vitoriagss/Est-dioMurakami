@@ -35,17 +35,17 @@ export function Segmentos() {
         ))}
       </div>
 
-      <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center gap-4 w-full max-w-md">
         <h3 className="font-(family-name:--font-montserrat-sans) text-2xl lg:text-3xl font-semibold text-black">
           Nos contate!
         </h3>
-        <div className="flex flex-col items-center gap-2.5">
+        <div className="flex flex-col items-start sm:items-center gap-3 w-full sm:w-auto">
           <a
             href="mailto:estudiomurakami@email.com"
             className="flex items-center gap-4"
           >
-            <EmailIcon className="size-7" aria-hidden />
-            <span className="font-(family-name:--font-montserrat-sans) text-lg lg:text-xl font-semibold text-black">
+            <EmailIcon className="size-6 sm:size-7 shrink-0" aria-hidden />
+            <span className="font-(family-name:--font-montserrat-sans) text-base sm:text-lg lg:text-xl font-semibold text-black break-all sm:break-normal">
               estudiomurakami@email.com
             </span>
           </a>

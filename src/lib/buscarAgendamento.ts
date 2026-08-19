@@ -23,3 +23,13 @@ export async function cancelarAgendamento(id: string): Promise<void> {
     agendamento.status = "cancelado";
   }
 }
+
+// TODO: substituir por chamada real ao Strapi (PUT /agendamentos/:id)
+export async function confirmarAgendamento(id: string): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, 400));
+
+  const agendamento = mockAgendamentos.find((a) => a.id === id);
+  if (agendamento) {
+    agendamento.status = "confirmado";
+  }
+}

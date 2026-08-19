@@ -1,12 +1,14 @@
 "use client";
 
-import { buscarAgendamentoPorContato, cancelarAgendamento } from "@/lib/buscarAgendamento";
+import { buscarAgendamentoPorContato, cancelarAgendamento, confirmarAgendamento } from "@/lib/buscarAgendamento";
 import { Agendamento } from "@/lib/types";
 import CancelamentoModal from "@/components/CancelamentoModal";
+import ConfirmacaoModal from "@/components/ConfirmacaoModal";
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
+import Image from "next/image";
 
 export default function StatusPage() {
   const [busca, setBusca] = useState("");
@@ -14,6 +16,7 @@ export default function StatusPage() {
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   const handleBuscar = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,16 +53,44 @@ export default function StatusPage() {
     }
     };
 
+    const handleConfirmar = async () => {
+    if (!agendamento) return;
+    try {
+      if (confirmarAgendamento) {
+        await confirmarAgendamento(agendamento.id);
+      }
+      
+      setAgendamento({ ...agendamento, status: "confirmado" });
+      setIsConfirmModalOpen(false);
+      toast.success("Agendamento confirmado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao confirmar agendamento", error);
+      toast.error("Erro ao confirmar o agendamento.");
+    }
+  };
+
   return (
     <main className="grow py-12 bg-branco">
       <div className="container mx-auto px-4 max-w-2xl">
+      <div className="flex justify-between items-center w-full mb-6">
         <Link
           href="/"
-          className="flex items-center text-vermelho hover:opacity-80 transition-opacity mb-6 w-fit"
+          className="flex items-center text-vermelho hover:opacity-80 transition-opacity w-fit"
         >
           <ChevronLeft size={20} />
           Voltar para o início
         </Link>
+
+        <div className="relative w-12 h-12 sm:w-16 sm:h-16 shrink-0">
+          <Image 
+            src="/img/Icone.png" 
+            alt="" 
+            fill 
+            sizes="100px" 
+            className="object-contain" 
+          />
+        </div>
+      </div>
 
         <h1 className="font-(family-name:--font-playfair) text-3xl sm:text-4xl font-bold text-center mb-2 text-primaria">
           Consultar Agendamento
@@ -118,12 +149,25 @@ export default function StatusPage() {
             )}
 
             {agendamento.status !== "cancelado" && (
-              <button
-                onClick={() => setIsCancelModalOpen(true)}
-                className="w-full sm:w-auto px-6 py-2 rounded-2xl border border-vermelho text-vermelho hover:bg-vermelho/10 transition-colors"
-              >
-                Cancelar agendamento
-              </button>
+              <div className="flex flex-col sm:flex-row gap-4 pt-2">
+
+                {agendamento.status === "pendente" && (
+                  <button
+                    onClick={() => setIsConfirmModalOpen(true)}
+                    className="w-full sm:w-auto px-6 py-2 rounded-2xl border border-green-600 text-green-600 hover:bg-green-100 transition-colors"
+                  >
+                    Confirmar agendamento
+                  </button>
+                )}
+
+                <button
+                  onClick={() => setIsCancelModalOpen(true)}
+                  className="w-full sm:w-auto px-6 py-2 rounded-2xl border border-vermelho text-vermelho hover:bg-vermelho/10 transition-colors"
+                >
+                  Cancelar agendamento
+                </button>
+                
+              </div>
             )}
           </div>
         )}
@@ -134,6 +178,14 @@ export default function StatusPage() {
           agendamento={agendamento}
           onClose={() => setIsCancelModalOpen(false)}
           onConfirm={handleConfirmarCancelamento}
+        />
+      )}
+
+      {isConfirmModalOpen && agendamento && (
+        <ConfirmacaoModal
+          agendamento={agendamento}
+          onClose={() => setIsConfirmModalOpen(false)}
+          onConfirm={handleConfirmar}
         />
       )}
     </main>
