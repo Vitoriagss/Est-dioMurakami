@@ -3,14 +3,14 @@ import Link from "next/link";
 
 export default function Header() {
   return (
-    <div className="sticky top-0 z-50 w-full bg-branco drop-shadow-lg">
-      <div className="container mx-auto  flex items-center sticky top-0 z-50 px-12 py-4 justify-between">
-        <div className="relative h-20 w-20">
+    <div className="fixed top-0 z-50 w-full bg-branco drop-shadow-lg">
+      <div className="container mx-auto flex items-center top-0 z-50 px-12 py-4 justify-between">
+        <Link href="/" className="relative h-20 w-20">
           <Image src="/img/Logo-nome-SemFundo.png" alt="" fill sizes="100px" />
-        </div>
+        </Link>
         <div className="flex gap-4 lg:gap-8 items-center font-semibold">
           <div className="flex items-center gap-4">
-            <Link href="" className="hidden lg:flex text-lg">
+            <Link href="/#sobre" className="hidden lg:flex text-lg">
               Sobre nos
             </Link>
             <Link href="/agendamentos" className="text-md lg:text-lg">
