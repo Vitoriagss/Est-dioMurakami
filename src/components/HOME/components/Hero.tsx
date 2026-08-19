@@ -7,7 +7,7 @@ import oculos from "../img/oculos.png";
 
 export function Hero() {
   return (
-    <section className="flex flex-col lg:flex-row items-center justify-between gap-12 px-6 sm:px-10 lg:px-16 py-16 lg:py-24">
+    <section className="flex flex-col lg:flex-row items-center justify-between gap-12 px-6 sm:px-10 lg:px-16 pt-40 pb-16 lg:pt-48 lg:pb-24">
       <div className="flex flex-col items-start gap-8 lg:gap-12 max-w-2xl">
         <h1 className="font-(family-name:--font-playfair) text-4xl sm:text-5xl lg:text-7xl font-semibold text-black leading-tight">
           Agendamento fácil com planejamento
