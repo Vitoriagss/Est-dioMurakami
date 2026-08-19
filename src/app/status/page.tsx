@@ -1,8 +1,9 @@
 "use client";
 
-import { buscarAgendamentoPorContato, cancelarAgendamento } from "@/lib/buscarAgendamento";
+import { buscarAgendamentoPorContato, cancelarAgendamento, confirmarAgendamento } from "@/lib/buscarAgendamento";
 import { Agendamento } from "@/lib/types";
 import CancelamentoModal from "@/components/CancelamentoModal";
+import ConfirmacaoModal from "@/components/ConfirmacaoModal";
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
@@ -14,6 +15,7 @@ export default function StatusPage() {
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   const handleBuscar = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +51,22 @@ export default function StatusPage() {
         toast.error("Erro ao cancelar o agendamento.");
     }
     };
+
+    const handleConfirmar = async () => {
+    if (!agendamento) return;
+    try {
+      if (confirmarAgendamento) {
+        await confirmarAgendamento(agendamento.id);
+      }
+      
+      setAgendamento({ ...agendamento, status: "confirmado" });
+      setIsConfirmModalOpen(false);
+      toast.success("Agendamento confirmado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao confirmar agendamento", error);
+      toast.error("Erro ao confirmar o agendamento.");
+    }
+  };
 
   return (
     <main className="grow py-12 bg-branco">
@@ -118,12 +136,25 @@ export default function StatusPage() {
             )}
 
             {agendamento.status !== "cancelado" && (
-              <button
-                onClick={() => setIsCancelModalOpen(true)}
-                className="w-full sm:w-auto px-6 py-2 rounded-2xl border border-vermelho text-vermelho hover:bg-vermelho/10 transition-colors"
-              >
-                Cancelar agendamento
-              </button>
+              <div className="flex flex-col sm:flex-row gap-4 pt-2">
+
+                {agendamento.status === "pendente" && (
+                  <button
+                    onClick={() => setIsConfirmModalOpen(true)}
+                    className="w-full sm:w-auto px-6 py-2 rounded-2xl border border-green-600 text-green-600 hover:bg-green-100 transition-colors"
+                  >
+                    Confirmar agendamento
+                  </button>
+                )}
+
+                <button
+                  onClick={() => setIsCancelModalOpen(true)}
+                  className="w-full sm:w-auto px-6 py-2 rounded-2xl border border-vermelho text-vermelho hover:bg-vermelho/10 transition-colors"
+                >
+                  Cancelar agendamento
+                </button>
+                
+              </div>
             )}
           </div>
         )}
@@ -134,6 +165,14 @@ export default function StatusPage() {
           agendamento={agendamento}
           onClose={() => setIsCancelModalOpen(false)}
           onConfirm={handleConfirmarCancelamento}
+        />
+      )}
+
+      {isConfirmModalOpen && agendamento && (
+        <ConfirmacaoModal
+          agendamento={agendamento}
+          onClose={() => setIsConfirmModalOpen(false)}
+          onConfirm={handleConfirmar}
         />
       )}
     </main>
