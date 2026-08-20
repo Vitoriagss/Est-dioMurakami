@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { toast } from "react-toastify";
 
 export interface FormData {
   nome: string;
@@ -33,7 +34,7 @@ export default function Agendamentos() {
 
   const handleFinalSubmit = (data: FormData) => {
     console.log("Formulário submetido para a API:", data);
-    alert("Agendamento efetuado com sucesso!");
+    toast.success("Agendamento efetuado com sucesso!");
   };
 
   const dataFormatada = formData.data

@@ -5,7 +5,7 @@ import { Calendar } from "../ui/calendar";
 import { ptBR } from "date-fns/locale";
 import { Card, CardContent } from "../ui/card";
 import { DynamicTimePicker } from "../TimeSelecter";
-import { ChangeEvent, SubmitEvent, useState } from "react";
+import { ChangeEvent, SubmitEvent, useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { format } from "date-fns";
 import { FormData } from "@/app/agendamentos/page";
@@ -35,6 +35,25 @@ export default function FormsAgenda({
   const inputStyle = "p-2 border border-bege rounded-lg w-full";
 
   const [errors, setErrors] = useState<FormErrors>({});
+
+  useEffect(() => {
+    const savedData = localStorage.getItem("agendamento");
+
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+
+        if (parsedData.data) {
+          parsedData.data = new Date(parsedData.data);
+        }
+
+        setFormData(parsedData);
+        toast.info("Dados do último agendamento recarregados!");
+      } catch (error) {
+        console.error("Erro ao carregar dados do localStorage", error);
+      }
+    }
+  }, []);
 
   const FieldError = ({ message }: { message?: string }) => {
     if (!message) return null;
@@ -126,6 +145,16 @@ export default function FormsAgenda({
       data: new Date(),
       horario: [],
     });
+
+    try {
+      const dataToSave = JSON.stringify(formData);
+
+      localStorage.setItem("agendamento", dataToSave);
+
+      toast.success("Agendamento salvo localmente!");
+    } catch (error) {
+      toast.error("Erro ao salvar os dados no navegador.");
+    }
   };
 
   const dateFormatted = formData.data ? format(formData.data, "dd/MM") : "";
