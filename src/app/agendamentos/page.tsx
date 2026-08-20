@@ -46,13 +46,13 @@ export default function Agendamentos() {
       : "Selecione um horário";
 
   return (
-    <main className="bg-branco grow container mx-auto">
+    <main className="bg-branco grow">
       <Header />
-      <div className="flex flex-col px-16 py-12 gap-4">
+      <div className="container mx-auto flex flex-col px-4 md:px-16 pt-32 pb-12 md:pt-40 gap-4">
         {/* Título */}
         <section>
           <div className="flex flex-col gap-6">
-            <h1 className="lg:text-6xl font-playfair font-bold text-center text-5xl lg:text-start">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-playfair font-bold text-center lg:text-start">
               Agende sua Reunião
             </h1>
             <p className="text-gray-500 text-center lg:text-start">
