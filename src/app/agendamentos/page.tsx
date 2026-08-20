@@ -2,8 +2,9 @@
 
 import FormsAgenda from "@/components/FormsAgenda";
 import Header from "@/components/HEADER";
-import { Calendar, Clock, Info, Mail, MapPin, Phone, User } from "lucide-react";
+import { Calendar, Clock, Info, Mail, MapPin, Phone, User, ChevronLeft } from "lucide-react"; 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -49,6 +50,16 @@ export default function Agendamentos() {
     <main className="bg-branco grow">
       <Header />
       <div className="container mx-auto flex flex-col px-4 md:px-16 pt-32 pb-12 md:pt-40 gap-4">
+        <div className="flex justify-between items-center w-full mb-6 md:mb-10">
+          <Link
+            href="/"
+            className="flex items-center text-vermelho hover:opacity-80 transition-opacity w-fit font-medium"
+          >
+            <ChevronLeft size={20} />
+            Voltar para o início
+          </Link>
+        </div>
+        
         {/* Título */}
         <section>
           <div className="flex flex-col gap-6">
