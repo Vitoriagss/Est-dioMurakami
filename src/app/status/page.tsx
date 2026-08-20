@@ -1,10 +1,14 @@
 "use client";
 
-import { buscarAgendamentoPorContato, cancelarAgendamento, confirmarAgendamento } from "@/lib/buscarAgendamento";
+import {
+  buscarAgendamentoPorContato,
+  cancelarAgendamento,
+  confirmarAgendamento,
+} from "@/lib/buscarAgendamento";
 import { Agendamento } from "@/lib/types";
 import CancelamentoModal from "@/components/CancelamentoModal";
 import ConfirmacaoModal from "@/components/ConfirmacaoModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
@@ -17,6 +21,12 @@ export default function StatusPage() {
   const [erro, setErro] = useState<string | null>(null);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleBuscar = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,27 +49,23 @@ export default function StatusPage() {
     }
   };
 
-    const handleConfirmarCancelamento = async () => {
+  const handleConfirmarCancelamento = async () => {
     if (!agendamento) return;
     try {
-        await cancelarAgendamento(agendamento.id);
-        setAgendamento({ ...agendamento, status: "cancelado" });
-        setIsCancelModalOpen(false);
-        toast.success("Agendamento cancelado com sucesso!");
+      await cancelarAgendamento(agendamento.id);
+      setAgendamento({ ...agendamento, status: "cancelado" });
+      setIsCancelModalOpen(false);
+      toast.success("Agendamento cancelado com sucesso!");
     } catch (error) {
-        console.error("Erro ao cancelar agendamento", error);
-        setErro("Não foi possível cancelar o agendamento. Tente novamente.");
-        toast.error("Erro ao cancelar o agendamento.");
+      console.error("Erro ao cancelar agendamento", error);
+      toast.error("Erro ao cancelar o agendamento.");
     }
-    };
+  };
 
-    const handleConfirmar = async () => {
+  const handleConfirmar = async () => {
     if (!agendamento) return;
     try {
-      if (confirmarAgendamento) {
-        await confirmarAgendamento(agendamento.id);
-      }
-      
+      await confirmarAgendamento(agendamento.id);
       setAgendamento({ ...agendamento, status: "confirmado" });
       setIsConfirmModalOpen(false);
       toast.success("Agendamento confirmado com sucesso!");
@@ -69,37 +75,44 @@ export default function StatusPage() {
     }
   };
 
+  if (!isMounted) {
+    return null;
+  }
+
   return (
     <main className="grow py-12 bg-branco">
       <div className="container mx-auto px-4 max-w-2xl">
-      <div className="flex justify-between items-center w-full mb-6">
-        <Link
-          href="/"
-          className="flex items-center text-vermelho hover:opacity-80 transition-opacity w-fit"
-        >
-          <ChevronLeft size={20} />
-          Voltar para o início
-        </Link>
+        <div className="flex justify-between items-center w-full mb-6">
+          <Link
+            href="/"
+            className="flex items-center text-vermelho hover:opacity-80 transition-opacity w-fit"
+          >
+            <ChevronLeft size={20} />
+            Voltar para o início
+          </Link>
 
-        <div className="relative w-12 h-12 sm:w-16 sm:h-16 shrink-0">
-          <Image 
-            src="/img/Icone.png" 
-            alt="" 
-            fill 
-            sizes="100px" 
-            className="object-contain" 
-          />
+          <div className="relative w-12 h-12 sm:w-16 sm:h-16 shrink-0">
+            <Image
+              src="/img/Icone.png"
+              alt=""
+              fill
+              sizes="100px"
+              className="object-contain"
+            />
+          </div>
         </div>
-      </div>
 
         <h1 className="font-(family-name:--font-playfair) text-3xl sm:text-4xl font-bold text-center mb-2 text-primaria">
           Consultar Agendamento
         </h1>
         <p className="text-center text-secundaria mb-8">
-          Digite o e-mail ou telefone usado no momento do agendamento. (teste com: ana@email.com, rodrigo@email.com ou mariana@email.com)
+          Digite o e-mail ou telefone usado no momento do agendamento.
         </p>
 
-        <form onSubmit={handleBuscar} className="flex flex-col sm:flex-row gap-3 mb-8">
+        <form
+          onSubmit={handleBuscar}
+          className="flex flex-col sm:flex-row gap-3 mb-8"
+        >
           <input
             type="text"
             value={busca}
@@ -111,7 +124,7 @@ export default function StatusPage() {
           <button
             type="submit"
             disabled={loading}
-            className="bg-primaria text-white px-6 py-3 rounded-2xl hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="bg-primaria text-white px-6 py-3 rounded-2xl hover:opacity-90 transition-opacity disabled:opacity-50 cursor-pointer"
           >
             {loading ? "Buscando..." : "Buscar"}
           </button>
@@ -122,14 +135,18 @@ export default function StatusPage() {
         {agendamento && (
           <div className="bg-white rounded-2xl shadow-md p-6 space-y-4 border border-bege">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-primaria">{agendamento.nomeCliente}</h2>
+              <h2 className="text-xl font-bold text-primaria">
+                {agendamento.nomeCliente}
+              </h2>
               <StatusBadge status={agendamento.status} />
             </div>
 
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-secundaria">Serviço</p>
-                <p className="font-medium">{agendamento.servico?.nome ?? "—"}</p>
+                <p className="font-medium">
+                  {agendamento.servico?.nome ?? "—"}
+                </p>
               </div>
               <div>
                 <p className="text-secundaria">Data</p>
@@ -137,7 +154,9 @@ export default function StatusPage() {
               </div>
               <div>
                 <p className="text-secundaria">Horário</p>
-                <p className="font-medium">{agendamento.horaInicio} - {agendamento.horaFim}</p>
+                <p className="font-medium">
+                  {agendamento.horaInicio} - {agendamento.horaFim}
+                </p>
               </div>
             </div>
 
@@ -150,11 +169,10 @@ export default function StatusPage() {
 
             {agendamento.status !== "cancelado" && (
               <div className="flex flex-col sm:flex-row gap-4 pt-2">
-
                 {agendamento.status === "pendente" && (
                   <button
                     onClick={() => setIsConfirmModalOpen(true)}
-                    className="w-full sm:w-auto px-6 py-2 rounded-2xl border border-green-600 text-green-600 hover:bg-green-100 transition-colors"
+                    className="w-full sm:w-auto px-6 py-2 rounded-2xl border border-green-600 text-green-600 hover:bg-green-100 transition-colors cursor-pointer"
                   >
                     Confirmar agendamento
                   </button>
@@ -162,11 +180,10 @@ export default function StatusPage() {
 
                 <button
                   onClick={() => setIsCancelModalOpen(true)}
-                  className="w-full sm:w-auto px-6 py-2 rounded-2xl border border-vermelho text-vermelho hover:bg-vermelho/10 transition-colors"
+                  className="w-full sm:w-auto px-6 py-2 rounded-2xl border border-vermelho text-vermelho hover:bg-vermelho/10 transition-colors cursor-pointer"
                 >
                   Cancelar agendamento
                 </button>
-                
               </div>
             )}
           </div>
@@ -198,12 +215,23 @@ function StatusBadge({ status }: { status: Agendamento["status"] }) {
     confirmado: { label: "Confirmado", classes: "bg-secundaria text-white" },
     cancelado: { label: "Cancelado", classes: "bg-vermelho text-white" },
   };
-  const { label, classes } = config[status];
-  return <span className={`text-xs font-medium px-3 py-1 rounded-2xl ${classes}`}>{label}</span>;
+
+  const statusFormatado = status?.toLowerCase() as keyof typeof config;
+  const { label, classes } = config[statusFormatado] || config.pendente;
+
+  return (
+    <span className={`text-xs font-medium px-3 py-1 rounded-2xl ${classes}`}>
+      {label}
+    </span>
+  );
 }
 
 function formatarData(dataIso: string) {
-  return new Date(dataIso).toLocaleDateString("pt-BR", {
+  if (!dataIso) return "—";
+  const parsedDate = new Date(dataIso);
+  if (isNaN(parsedDate.getTime())) return "—";
+
+  return parsedDate.toLocaleDateString("pt-BR", {
     day: "2-digit",
     month: "long",
     year: "numeric",
