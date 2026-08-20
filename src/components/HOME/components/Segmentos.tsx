@@ -13,11 +13,11 @@ const SEGMENTOS = [
 export function Segmentos() {
   return (
     <section
-      id="seguimentos"
+      id="segmentos"
       className="bg-orange-50 flex flex-col items-center gap-16 px-6 sm:px-10 lg:px-16 py-16 lg:py-24"
     >
       <h2 className="font-(family-name:--font-playfair) text-3xl lg:text-5xl font-semibold text-black">
-        Seguimentos
+        Segmentos
       </h2>
 
       <div className="flex flex-wrap justify-center items-start gap-10">

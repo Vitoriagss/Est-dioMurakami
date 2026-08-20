@@ -19,14 +19,14 @@ export default function Header() {
             <Link href="/#sobre" className="hidden lg:flex text-lg">
               Sobre nos
             </Link>
+            <Link href="/#segmentos" className="hidden lg:flex text-lg">
+              Segmentos
+            </Link>
             <Link href="/agendamentos" className="text-md lg:text-lg">
               Agendamentos
             </Link>
             <Link href="/status" className="text-md lg:text-lg">
               Status
-            </Link>
-            <Link href="/#seguimentos" className="hidden lg:flex text-lg">
-              Seguimentos
             </Link>
           </div>
         </div>
