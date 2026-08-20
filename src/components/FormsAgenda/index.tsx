@@ -5,10 +5,11 @@ import { Calendar } from "../ui/calendar";
 import { ptBR } from "date-fns/locale";
 import { Card, CardContent } from "../ui/card";
 import { DynamicTimePicker } from "../TimeSelecter";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, SubmitEvent, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { format } from "date-fns";
 import { FormData } from "@/app/agendamentos/page";
+import { toast, ToastContainer } from "react-toastify";
 
 interface FormsAgendaProps {
   formData: FormData;
@@ -16,12 +17,31 @@ interface FormsAgendaProps {
   onSubmitData?: (data: FormData) => void;
 }
 
+type FormErrors = {
+  nome?: string;
+  email?: string;
+  telefone?: string;
+  tipo?: string;
+  assunto?: string;
+  data?: string;
+  horario?: string;
+};
+
 export default function FormsAgenda({
   formData,
   setFormData,
   onSubmitData,
 }: FormsAgendaProps): React.JSX.Element {
   const inputStyle = "p-2 border border-bege rounded-lg w-full";
+
+  const [errors, setErrors] = useState<FormErrors>({});
+
+  const FieldError = ({ message }: { message?: string }) => {
+    if (!message) return null;
+    return (
+      <span className="text-red-500 text-xs font-medium mt-1">{message}</span>
+    );
+  };
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -31,6 +51,13 @@ export default function FormsAgenda({
       ...prev,
       [name]: value,
     }));
+
+    if (errors[name as keyof FormErrors]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: undefined,
+      }));
+    }
   };
 
   const handleDateChange = (newDate: Date | undefined) => {
@@ -48,15 +75,46 @@ export default function FormsAgenda({
     }));
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
 
+    const newErrors: FormErrors = {};
+
+    if (formData.nome.trim().length < 3) {
+      newErrors.nome = "O nome completo deve ter pelo menos 3 caracteres.";
+    }
+
+    const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
+    if (!isValidEmail(formData.email)) {
+      newErrors.email =
+        "Por favor, insira um e-mail válido (ex: nome@dominio.com).";
+    }
+
+    const phoneDigits = formData.telefone.replace(/\D/g, "");
+    if (phoneDigits.length < 10) {
+      newErrors.telefone =
+        "Informe um número de telefone/Whatsapp válido com DDD";
+    }
+
+    if (!formData.tipo) {
+      newErrors.tipo = "Selecione ou digite o tipo de reunião.";
+    }
+
     if (!formData.data || formData.horario.length === 0) {
-      alert("Por favor, selecione uma data e ao menos um horário.");
+      newErrors.horario =
+        "Por favor, selecione uma data e ao menos um horário!";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error("Preencha os campos destacados corretamente.", {
+        toastId: "form-errors",
+      });
       return;
     }
 
-    console.log("Formulário Enviado com Sucesso:", formData);
+    setErrors({}); // Limpa erros
+    toast.success("Agendamento enviado com sucesso!");
 
     setFormData({
       nome: "",
@@ -73,7 +131,12 @@ export default function FormsAgenda({
   const dateFormatted = formData.data ? format(formData.data, "dd/MM") : "";
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-6xl">
+    <form
+      onSubmit={handleSubmit}
+      noValidate
+      className="flex flex-col gap-4 max-w-6xl"
+    >
+      <ToastContainer position="top-right" autoClose={3000} />
       <section className="flex flex-col py-12 px-6 gap-12 bg-gray-100 rounded-xl drop-shadow-xl w-full">
         {/* Seção 1: Seus Dados */}
         <div className="flex flex-col gap-8">
@@ -89,43 +152,46 @@ export default function FormsAgenda({
               <input
                 type="text"
                 placeholder="Ana Paula"
-                className={inputStyle}
+                className={`${inputStyle} ${errors.nome ? "border-red-500 bg-red-50" : ""}`}
                 name="nome"
                 value={formData.nome}
                 onChange={handleChange}
                 required
               />
+              <FieldError message={errors.nome} />
             </div>
             <div className="flex flex-col gap-2">
               <h1>E-mail</h1>
               <input
                 type="email"
                 placeholder="anapaula@exemplo.com"
-                className={inputStyle}
+                className={`${inputStyle} ${errors.email ? "border-red-500 bg-red-50" : ""}`}
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
                 required
               />
+              <FieldError message={errors.email} />
             </div>
             <div className="flex flex-col gap-2">
               <h1>Telefone</h1>
               <input
                 type="text"
                 placeholder="(99) 99999-9999"
-                className={inputStyle}
+                className={`${inputStyle} ${errors.telefone ? "border-red-500 bg-red-50" : ""}`}
                 name="telefone"
                 value={formData.telefone}
                 onChange={handleChange}
                 required
               />
+              <FieldError message={errors.telefone} />
             </div>
             <div className="flex flex-col gap-2">
               <h1>Empresa (Opcional)</h1>
               <input
                 type="text"
                 placeholder="Nome da minha empresa"
-                className={inputStyle}
+                className={`${inputStyle}`}
                 name="empresa"
                 value={formData.empresa}
                 onChange={handleChange}
@@ -147,24 +213,26 @@ export default function FormsAgenda({
               <h1>Tipo de Reunião</h1>
               <input
                 type="text"
-                className={inputStyle}
+                className={`${inputStyle} ${errors.tipo ? "border-red-500 bg-red-50" : ""}`}
                 placeholder="Consultoria Inicial"
                 name="tipo"
                 value={formData.tipo}
                 onChange={handleChange}
                 required
               />
+              <FieldError message={errors.tipo} />
             </div>
             <div className="flex flex-col gap-2">
               <h1>Assunto/Observações</h1>
               <textarea
-                className={inputStyle}
+                className={`${inputStyle} ${errors.assunto ? "border-red-500 bg-red-50" : ""}`}
                 placeholder="Digite aqui brevemente o que gostaria de abordar..."
                 name="assunto"
                 value={formData.assunto}
                 onChange={handleChange}
                 required
               />
+              <FieldError message={errors.assunto} />
             </div>
           </div>
         </div>
