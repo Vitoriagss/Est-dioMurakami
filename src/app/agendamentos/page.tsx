@@ -61,8 +61,7 @@ export default function Agendamentos() {
             </p>
           </div>
         </section>
-
-        <div className="flex flex-col lg:flex-row lg:items-start gap-8 items-center">
+        <div className="flex flex-col lg:flex-row lg:items-start gap-8 items-center justify-between">
           <section className="flex justify-center">
             <FormsAgenda
               formData={formData}
@@ -70,7 +69,6 @@ export default function Agendamentos() {
               onSubmitData={handleFinalSubmit}
             />
           </section>
-
           <section className="flex flex-col gap-16 px-6">
             <div className="bg-orange-50 hidden lg:flex flex-col w-full gap-4 p-4 rounded-lg border border-bege">
               <div className="flex items-center gap-2">
@@ -86,7 +84,6 @@ export default function Agendamentos() {
                   </p>
                 </div>
               </div>
-
               <div className="flex items-center gap-2">
                 <span className="flex bg-gray-100/75 justify-center items-center h-10 w-10 rounded-full shrink-0">
                   <Info size="25px" />
@@ -100,7 +97,6 @@ export default function Agendamentos() {
                   </p>
                 </div>
               </div>
-
               <div className="flex items-center gap-2">
                 <span className="flex bg-gray-100/75 justify-center items-center h-10 w-10 rounded-full shrink-0">
                   <Calendar size="25px" />
@@ -114,28 +110,26 @@ export default function Agendamentos() {
                 </div>
               </div>
             </div>
-
             {/* Informações Gerais */}
-            <div className="flex flex-col gap-4 px-6 mx-4">
+            <div className="flex flex-col gap-4 px-6 mx-4 text-center items-center md:items-start md:text-start">
               <h1 className="text-xl font-semibold">Informações Gerais</h1>
               <p className="flex gap-2 text-gray-700 text-sm">
-                <Mail />
+                <Mail size={30} />
                 contato@murakami.com
               </p>
               <p className="flex gap-2 text-gray-700 text-sm">
-                <Phone />
+                <Phone size={30} />
                 +55 (11) 4003-8888
               </p>
               <p className="flex gap-2 text-gray-700 text-sm">
-                <MapPin />
+                <MapPin size={30} className="shrink-0" />
                 Av. Paulista, 1000 - Bela Vista, São Paulo/SP
               </p>
               <p className="flex gap-2 text-gray-700 text-sm">
-                <Clock />
+                <Clock size={30} />
                 Seg–Sex, 08:00–18:00
               </p>
             </div>
-
             <div className="relative hidden lg:flex h-50 w-50 xl:h-100 xl:w-100">
               <Image src="/img/Icone.png" alt="" fill />
             </div>
