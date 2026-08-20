@@ -27,7 +27,6 @@ export function DynamicTimePicker({
 
     const now = new Date();
     const isToday = selectedDate.toDateString() === now.toDateString();
-    const minutes = now.getMinutes();
 
     if (isToday) {
       return hour <= now.getHours() + now.getMinutes() * (1 / 60);

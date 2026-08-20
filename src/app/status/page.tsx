@@ -8,7 +8,7 @@ import {
 import { Agendamento } from "@/lib/types";
 import CancelamentoModal from "@/components/CancelamentoModal";
 import ConfirmacaoModal from "@/components/ConfirmacaoModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
@@ -21,6 +21,12 @@ export default function StatusPage() {
   const [erro, setErro] = useState<string | null>(null);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleBuscar = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +58,6 @@ export default function StatusPage() {
       toast.success("Agendamento cancelado com sucesso!");
     } catch (error) {
       console.error("Erro ao cancelar agendamento", error);
-      setErro("Não foi possível cancelar o agendamento. Tente novamente.");
       toast.error("Erro ao cancelar o agendamento.");
     }
   };
@@ -60,10 +65,7 @@ export default function StatusPage() {
   const handleConfirmar = async () => {
     if (!agendamento) return;
     try {
-      if (confirmarAgendamento) {
-        await confirmarAgendamento(agendamento.id);
-      }
-
+      await confirmarAgendamento(agendamento.id);
       setAgendamento({ ...agendamento, status: "confirmado" });
       setIsConfirmModalOpen(false);
       toast.success("Agendamento confirmado com sucesso!");
@@ -72,6 +74,10 @@ export default function StatusPage() {
       toast.error("Erro ao confirmar o agendamento.");
     }
   };
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <main className="grow py-12 bg-branco">
@@ -100,8 +106,7 @@ export default function StatusPage() {
           Consultar Agendamento
         </h1>
         <p className="text-center text-secundaria mb-8">
-          Digite o e-mail ou telefone usado no momento do agendamento. (teste
-          com: ana@email.com, rodrigo@email.com ou mariana@email.com)
+          Digite o e-mail ou telefone usado no momento do agendamento.
         </p>
 
         <form
@@ -119,7 +124,7 @@ export default function StatusPage() {
           <button
             type="submit"
             disabled={loading}
-            className="bg-primaria text-white px-6 py-3 rounded-2xl hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="bg-primaria text-white px-6 py-3 rounded-2xl hover:opacity-90 transition-opacity disabled:opacity-50 cursor-pointer"
           >
             {loading ? "Buscando..." : "Buscar"}
           </button>
@@ -167,7 +172,7 @@ export default function StatusPage() {
                 {agendamento.status === "pendente" && (
                   <button
                     onClick={() => setIsConfirmModalOpen(true)}
-                    className="w-full sm:w-auto px-6 py-2 rounded-2xl border border-green-600 text-green-600 hover:bg-green-100 transition-colors"
+                    className="w-full sm:w-auto px-6 py-2 rounded-2xl border border-green-600 text-green-600 hover:bg-green-100 transition-colors cursor-pointer"
                   >
                     Confirmar agendamento
                   </button>
@@ -175,7 +180,7 @@ export default function StatusPage() {
 
                 <button
                   onClick={() => setIsCancelModalOpen(true)}
-                  className="w-full sm:w-auto px-6 py-2 rounded-2xl border border-vermelho text-vermelho hover:bg-vermelho/10 transition-colors"
+                  className="w-full sm:w-auto px-6 py-2 rounded-2xl border border-vermelho text-vermelho hover:bg-vermelho/10 transition-colors cursor-pointer"
                 >
                   Cancelar agendamento
                 </button>
@@ -210,7 +215,10 @@ function StatusBadge({ status }: { status: Agendamento["status"] }) {
     confirmado: { label: "Confirmado", classes: "bg-secundaria text-white" },
     cancelado: { label: "Cancelado", classes: "bg-vermelho text-white" },
   };
-  const { label, classes } = config[status];
+
+  const statusFormatado = status?.toLowerCase() as keyof typeof config;
+  const { label, classes } = config[statusFormatado] || config.pendente;
+
   return (
     <span className={`text-xs font-medium px-3 py-1 rounded-2xl ${classes}`}>
       {label}
@@ -219,7 +227,11 @@ function StatusBadge({ status }: { status: Agendamento["status"] }) {
 }
 
 function formatarData(dataIso: string) {
-  return new Date(dataIso).toLocaleDateString("pt-BR", {
+  if (!dataIso) return "—";
+  const parsedDate = new Date(dataIso);
+  if (isNaN(parsedDate.getTime())) return "—";
+
+  return parsedDate.toLocaleDateString("pt-BR", {
     day: "2-digit",
     month: "long",
     year: "numeric",
