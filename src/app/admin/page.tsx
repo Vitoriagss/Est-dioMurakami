@@ -7,6 +7,7 @@ import ListaAgendamentosAdmin from "@/components/ListaAgendamentosAdmin";
 import { Agendamento } from "@/lib/types";
 import { mockAgendamentos } from "@/lib/mockAgendamentos";
 import { Calendar, CheckCircle2, XCircle, Clock } from "lucide-react";
+import Header from "@/components/HEADER";
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -83,12 +84,15 @@ export default function AdminPage() {
 
   if (!isAuthenticated) {
     return (
-      <AdminLogin
-        onLoginSuccess={() => {
-          setIsAuthenticated(true);
-          carregarAgendamentos();
-        }}
-      />
+      <div>
+        <Header />
+        <AdminLogin
+          onLoginSuccess={() => {
+            setIsAuthenticated(true);
+            carregarAgendamentos();
+          }}
+        />
+      </div>
     );
   }
 
