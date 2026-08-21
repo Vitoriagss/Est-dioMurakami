@@ -7,8 +7,8 @@ import oculos from "../img/oculos.png";
 
 export function Hero() {
   return (
-    <section className="flex flex-col lg:flex-row items-center justify-between gap-12 px-6 sm:px-10 lg:px-16 pt-40 pb-16 lg:pt-48 lg:pb-24">
-      <div className="flex flex-col items-start gap-8 lg:gap-12 max-w-2xl">
+    <section className="container mx-auto min-h-screen flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-10 lg:gap-12 px-4 sm:px-10 lg:px-16 pt-28 pb-12 sm:pt-32 sm:pb-16 md:pt-36 lg:pt-44 lg:pb-24">
+      <div className="flex flex-col items-center lg:items-start gap-8 lg:gap-12 max-w-2xl text-center lg:text-left">
         <h1 className="font-(family-name:--font-playfair) text-4xl sm:text-5xl lg:text-7xl font-semibold text-black leading-tight">
           Agendamento fácil com planejamento
         </h1>
@@ -16,7 +16,7 @@ export function Hero() {
           Junte-se a 20 milhões de profissionais que agendam reuniões
           facilmente com a ferramenta de agendamento número 1.
         </p>
-        <div className="flex flex-wrap items-center gap-6 sm:gap-10 lg:gap-16">
+        <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 sm:gap-10 lg:gap-16">
           <Button href="/agendamentos">Agendar agora</Button>
           <Button href="/status">Consultar status</Button>
           <Image
