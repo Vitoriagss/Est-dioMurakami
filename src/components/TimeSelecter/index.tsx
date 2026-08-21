@@ -6,11 +6,13 @@ import * as React from "react";
 interface TimePickerProps {
   selectedDate: Date | undefined;
   onReserveSuccess?: (range: string[]) => void;
+  horariosOcupados?: string[];
 }
 
 export function DynamicTimePicker({
   selectedDate,
   onReserveSuccess,
+  horariosOcupados = [],
 }: TimePickerProps) {
   const [startTime, setStartTime] = React.useState<number | null>(null);
   const [endTime, setEndTime] = React.useState<number | null>(null);
@@ -79,11 +81,15 @@ export function DynamicTimePicker({
     <ScrollArea className="h-fit rounded-md border p-4">
       <div className="grid grid-cols-4 gap-2 text-md md:text-sm">
         {Hours.map((hour) => {
-          const disabled = isTimeDisabled(hour);
-          const selected = isInRange(hour);
+
           const timeString = Number.isInteger(hour)
             ? `${Math.trunc(hour).toString().padStart(2, "0")}:00`
             : `${Math.trunc(hour).toString().padStart(2, "0")}:30`;
+
+          const isOcupado = horariosOcupados.includes(timeString);
+
+          const disabled = isTimeDisabled(hour) || isOcupado;
+          const selected = isInRange(hour);
 
           return (
             <button

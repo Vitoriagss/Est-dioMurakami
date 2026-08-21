@@ -10,6 +10,7 @@ import { ArrowRight } from "lucide-react";
 import { format } from "date-fns";
 import { FormData } from "@/app/agendamentos/page";
 import { toast, ToastContainer } from "react-toastify";
+import { useSearchParams } from "next/navigation";
 
 interface FormsAgendaProps {
   formData: FormData;
@@ -36,41 +37,70 @@ export default function FormsAgenda({
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [isMounted, setIsMounted] = useState(false);
+  const [horariosOcupados, setHorariosOcupados] = useState<string[]>([]);
+
+  const searchParams = useSearchParams();
+  const editId = searchParams.get("edit");
 
   useEffect(() => {
     setIsMounted(true);
-  }, []);
 
-  const horarios = formData?.horario || [];
+    if (editId) {
+      const savedData = localStorage.getItem("agendamentos");
+      if (savedData) {
+        try {
+          const parsedData = JSON.parse(savedData);
+          const itemParaEditar = parsedData.find((a: any) => a.id === editId);
 
-  const isButtonDisabled = !formData?.nome || !formData?.email;
-
-  useEffect(() => {
-    const savedData = localStorage.getItem("agendamentos");
-
-    if (savedData) {
-      try {
-        const parsedData = JSON.parse(savedData);
-        const ultimoAgendamento = Array.isArray(parsedData)
-          ? parsedData[parsedData.length - 1]
-          : parsedData;
-
-        if (ultimoAgendamento) {
-          const item = ultimoAgendamento.formData || ultimoAgendamento;
-          setFormData({
-            ...item,
-            data: item.data ? new Date(item.data) : new Date(),
-            horario: Array.isArray(item.horario) ? item.horario : [],
-          });
-          toast.info("Dados do último agendamento recarregados!");
+          if (itemParaEditar) {
+            setFormData({
+              nome: itemParaEditar.nomeCliente,
+              email: itemParaEditar.email,
+              telefone: itemParaEditar.telefone,
+              empresa: itemParaEditar.empresa || "",
+              tipo: itemParaEditar.tipo,
+              assunto: itemParaEditar.assunto,
+              data: new Date(itemParaEditar.data),
+              horario: itemParaEditar.horario || [],
+            });
+            toast.info("Modo de edição: você pode alterar seus dados.");
+          }
+        } catch (error) {
+          console.error("Erro ao carregar edição", error);
         }
-      } catch (error) {
-        console.error("Erro ao carregar dados do localStorage", error);
       }
     }
-  }, []);
+  }, [editId, setFormData]);
+
+  useEffect(() => {
+    if (!formData?.data) return;
+
+    const savedData = localStorage.getItem("agendamentos");
+    if (savedData) {
+      const parsedData = JSON.parse(savedData);
+      
+      // Filtra os agendamentos do mesmo dia
+      const ocupadosNoDia = parsedData.filter((a: any) => {
+        // Ignora os cancelados
+        if (a.status === "cancelado") return false;
+        // Ignora o próprio agendamento sendo editado (para liberar o horário dele mesmo)
+        if (editId && a.id === editId) return false;
+        
+        const dataSalva = new Date(a.data).toDateString();
+        const dataSelecionada = formData.data!.toDateString();
+        return dataSalva === dataSelecionada;
+      });
+
+      // Extrai todos os horários que já foram pegos
+      const arrayDeHorarios = ocupadosNoDia.flatMap((a: any) => a.horario || []);
+      setHorariosOcupados(arrayDeHorarios);
+    }
+  }, [formData?.data, editId]);
 
   if (!isMounted) return <></>;
+
+  const horarios = formData?.horario || [];
+  const isButtonDisabled = !formData?.nome || !formData?.email;
 
   const FieldError = ({ message }: { message?: string }) => {
     if (!message) return null;
@@ -151,8 +181,8 @@ export default function FormsAgenda({
 
     setErrors({});
 
-    const novoAgendamento = {
-      id: crypto.randomUUID(),
+const novoAgendamento = {
+      id: editId || crypto.randomUUID(), // Mantém o ID se for edição
       nomeCliente: formData.nome,
       nome: formData.nome,
       email: formData.email,
@@ -162,9 +192,7 @@ export default function FormsAgenda({
       assunto: formData.assunto,
       descricao: formData.assunto,
       servico: { nome: formData.tipo },
-      data: formData.data
-        ? formData.data.toISOString()
-        : new Date().toISOString(),
+      data: formData.data ? formData.data.toISOString() : new Date().toISOString(),
       horaInicio: horarios[0] || "",
       horaFim: horarios[horarios.length - 1] || "",
       horario: horarios,
@@ -174,12 +202,18 @@ export default function FormsAgenda({
     try {
       const dadosSalvos = localStorage.getItem("agendamentos");
       const listaExistente = dadosSalvos ? JSON.parse(dadosSalvos) : [];
-      const novaLista = Array.isArray(listaExistente)
-        ? [...listaExistente, novoAgendamento]
-        : [listaExistente, novoAgendamento];
+      let novaLista;
+
+      if (editId) {
+        // Substitui o agendamento antigo pelo atualizado
+        novaLista = listaExistente.map((item: any) => item.id === editId ? novoAgendamento : item);
+      } else {
+        // Adiciona um novo
+        novaLista = Array.isArray(listaExistente) ? [...listaExistente, novoAgendamento] : [listaExistente, novoAgendamento];
+      }
 
       localStorage.setItem("agendamentos", JSON.stringify(novaLista));
-      toast.success("Agendamento enviado e salvo localmente com sucesso!");
+      toast.success(editId ? "Agendamento atualizado com sucesso!" : "Agendamento salvo com sucesso!");
     } catch (error) {
       console.error("Erro ao salvar:", error);
       toast.error("Erro ao salvar os dados no navegador.");
@@ -337,6 +371,7 @@ export default function FormsAgenda({
                 <DynamicTimePicker
                   selectedDate={formData?.data}
                   onReserveSuccess={handleReservaConcluida}
+                  horariosOcupados={horariosOcupados}
                 />
               </div>
 
