@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Agendamento } from "@/lib/types"; // Ajuste o caminho das suas tipagens se necessário
+import { Agendamento } from "@/lib/types";
 import {
   X,
   Calendar,
@@ -11,20 +11,78 @@ import {
   Phone,
   FileText,
   Tag,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
-import { ScrollArea } from "../ui/scroll-area";
+import {
+  cancelarAgendamento,
+  confirmarAgendamento,
+} from "@/lib/buscarAgendamento";
+import CancelamentoModal from "@/components/CancelamentoModal";
+import ConfirmacaoModal from "@/components/ConfirmacaoModal";
+import { toast } from "sonner";
 
 interface Props {
   agendamentos: Agendamento[];
   onAtualizarStatus?: () => void;
 }
 
-export default function ListaAgendamentosAdmin({ agendamentos }: Props) {
+export default function ListaAgendamentosAdmin({
+  agendamentos,
+  onAtualizarStatus,
+}: Props) {
   const [agendamentoSelecionado, setAgendamentoSelecionado] =
     useState<Agendamento | null>(null);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+
+  // Manipulação do Cancelamento (CRUD)
+  const handleConfirmarCancelamento = async () => {
+    if (!agendamentoSelecionado) return;
+    try {
+      await cancelarAgendamento(agendamentoSelecionado.id);
+      setIsCancelModalOpen(false);
+
+      // Atualiza o drawer selecionado
+      setAgendamentoSelecionado((prev) =>
+        prev ? { ...prev, status: "cancelado" } : null,
+      );
+
+      toast.success("Agendamento cancelado no localStorage!");
+
+      // Recarrega os dados na tela do Admin
+      if (onAtualizarStatus) {
+        onAtualizarStatus();
+      }
+    } catch (error) {
+      console.error("Erro ao cancelar agendamento", error);
+      toast.error("Erro ao cancelar o agendamento.");
+    }
+  };
+
+  const handleConfirmar = async () => {
+    if (!agendamentoSelecionado) return;
+    try {
+      await confirmarAgendamento(agendamentoSelecionado.id);
+      setIsConfirmModalOpen(false);
+
+      setAgendamentoSelecionado((prev) =>
+        prev ? { ...prev, status: "confirmado" } : null,
+      );
+
+      toast.success("Agendamento confirmado no localStorage!");
+
+      if (onAtualizarStatus) {
+        onAtualizarStatus();
+      }
+    } catch (error) {
+      console.error("Erro ao confirmar agendamento", error);
+      toast.error("Erro ao confirmar o agendamento.");
+    }
+  };
 
   const getStatusBadge = (status?: string) => {
-    switch (status) {
+    switch (status?.toLowerCase()) {
       case "confirmado":
         return (
           <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
@@ -44,6 +102,20 @@ export default function ListaAgendamentosAdmin({ agendamentos }: Props) {
           </span>
         );
     }
+  };
+
+  const formatarData = (dataIso: string) => {
+    if (!dataIso) return "—";
+    const parsedDate = new Date(
+      dataIso.includes("T") ? dataIso : `${dataIso}T00:00:00`,
+    );
+    if (isNaN(parsedDate.getTime())) return dataIso;
+
+    return parsedDate.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
   };
 
   return (
@@ -104,8 +176,8 @@ export default function ListaAgendamentosAdmin({ agendamentos }: Props) {
       {/* Painel Lateral (Drawer) */}
 
       {agendamentoSelecionado && (
-        <section className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 lg:static px-12 py-8 bg-white max-w-125 h-fit shadow-2xl rounded-lg">
-          <div className="flex justify-end bg-black/40">
+        <section className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 lg:top-0 lg:left-0 lg:translate-x-0 lg:translate-y-0 lg:static px-12 py-8 bg-white max-w-100 w-full h-fit shadow-2xl rounded-lg">
+          <div className="flex">
             <div className="w-full max-w-md bg-white h-full overflow-y-auto flex flex-col justify-between animate-in slide-in-from-right duration-200">
               <div>
                 <div className="flex justify-between items-center pb-4 mb-6 border-b border-gray-100">
@@ -188,6 +260,24 @@ export default function ListaAgendamentosAdmin({ agendamentos }: Props) {
                 </div>
               </div>
               <div className="pt-6 border-t border-gray-100">
+                {agendamentoSelecionado.status !== "cancelado" && (
+                  <div className="flex gap-3 w-full">
+                    {agendamentoSelecionado.status === "pendente" && (
+                      <button
+                        onClick={() => setIsConfirmModalOpen(true)}
+                        className="flex-1 py-2.5 px-4 text-sm font-semibold text-green-700 bg-green-50 border border-green-600 rounded-xl hover:bg-green-100 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <CheckCircle size={16} /> Confirmar
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setIsCancelModalOpen(true)}
+                      className="flex-1 py-2.5 px-4 text-sm font-semibold text-red-700 bg-red-50 border border-red-600 rounded-xl hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <XCircle size={16} /> Cancelar
+                    </button>
+                  </div>
+                )}
                 <button
                   onClick={() => setAgendamentoSelecionado(null)}
                   className="w-full py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors"
@@ -198,6 +288,22 @@ export default function ListaAgendamentosAdmin({ agendamentos }: Props) {
             </div>
           </div>
         </section>
+      )}
+
+      {isCancelModalOpen && agendamentoSelecionado && (
+        <CancelamentoModal
+          agendamento={agendamentoSelecionado}
+          onClose={() => setIsCancelModalOpen(false)}
+          onConfirm={handleConfirmarCancelamento}
+        />
+      )}
+
+      {isConfirmModalOpen && agendamentoSelecionado && (
+        <ConfirmacaoModal
+          agendamento={agendamentoSelecionado}
+          onClose={() => setIsConfirmModalOpen(false)}
+          onConfirm={handleConfirmar}
+        />
       )}
     </div>
   );
