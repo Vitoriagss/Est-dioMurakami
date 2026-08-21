@@ -25,9 +25,9 @@ export default function Header() {
       return;
     }
 
-    const sections = SECTION_IDS.map((id) => document.getElementById(id)).filter(
-      (el): el is HTMLElement => el !== null
-    );
+    const sections = SECTION_IDS.map((id) =>
+      document.getElementById(id),
+    ).filter((el): el is HTMLElement => el !== null);
 
     if (sections.length === 0) return;
 
@@ -46,7 +46,7 @@ export default function Header() {
         // viewport, accounting for the fixed header's height.
         rootMargin: "-45% 0px -45% 0px",
         threshold: [0, 0.25, 0.5, 0.75, 1],
-      }
+      },
     );
 
     sections.forEach((section) => observer.observe(section));
