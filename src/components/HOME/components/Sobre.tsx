@@ -14,14 +14,14 @@ export function Sobre() {
   return (
     <section
       id="sobre"
-      className="scroll-mt-28 min-h-screen bg-primaria shadow-[0px_4px_4px_0px_rgba(0,0,0,0.60)] flex flex-col items-center justify-center py-12 sm:py-16 lg:py-24"
+      className="scroll-mt-28 min-h-screen bg-primaria shadow-[0px_4px_4px_0px_rgba(0,0,0,0.60)] flex flex-col items-center justify-center py-12"
     >
-      <div className="container mx-auto flex flex-col items-center gap-10 lg:gap-14 px-4 sm:px-10 lg:px-16">
-        <div className="w-full flex flex-col items-center lg:flex-row lg:items-center gap-10 lg:gap-16">
+      <div className="container mx-auto flex flex-col items-center gap-10 xl:gap-14 px-4 sm:px-10 xl:px-16">
+        <div className="w-full flex flex-col items-center xl:flex-row xl:items-center xl:justify-between gap-10 xl:gap-16">
           <Image
             src={logopreta}
             alt="Logo Estúdio Murakami"
-            className="w-full max-w-[699px] aspect-square h-auto shrink-0 mx-auto lg:mx-0"
+            className="w-full max-w-[800px] aspect-square h-auto shrink-0 mx-auto xl:mx-0"
           />
 
           <div className="flex-1 flex flex-col items-center lg:items-start gap-6 lg:gap-10 text-center lg:text-left">
