@@ -13,6 +13,7 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
+import Header from "@/components/HEADER";
 
 export default function StatusPage() {
   const [busca, setBusca] = useState("");
@@ -80,7 +81,9 @@ export default function StatusPage() {
   }
 
   return (
-    <main className="grow py-12 bg-branco">
+    <main className="grow py-12 pt-32 pb-12 md:pt-40">
+      <Header />
+
       <div className="container mx-auto px-4 max-w-2xl">
         <div className="flex justify-between items-center w-full mb-6">
           <Link
@@ -169,22 +172,33 @@ export default function StatusPage() {
 
             {agendamento.status !== "cancelado" && (
               <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                {agendamento.status === "pendente" && (
-                  <button
-                    onClick={() => setIsConfirmModalOpen(true)}
-                    className="w-full sm:w-auto px-6 py-2 rounded-2xl border border-green-600 text-green-600 hover:bg-green-100 transition-colors cursor-pointer"
-                  >
-                    Confirmar agendamento
-                  </button>
-                )}
 
-                <button
-                  onClick={() => setIsCancelModalOpen(true)}
-                  className="w-full sm:w-auto px-6 py-2 rounded-2xl border border-vermelho text-vermelho hover:bg-vermelho/10 transition-colors cursor-pointer"
+                <div className="flex flex-col sm:flex-row gap-4 w-full">
+                  {agendamento.status === "pendente" && (
+                    <button
+                      onClick={() => setIsConfirmModalOpen(true)}
+                      className="w-full sm:w-auto flex-1 px-6 py-2 rounded-2xl border border-green-600 text-green-600 hover:bg-green-100 transition-colors cursor-pointer"
+                    >
+                      Confirmar agendamento
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => setIsCancelModalOpen(true)}
+                    className="w-full sm:w-auto flex-1 px-6 py-2 rounded-2xl border border-vermelho text-vermelho hover:bg-vermelho/10 transition-colors cursor-pointer"
+                  >
+                    Cancelar agendamento
+                  </button>
+                </div>
+                
+                <Link
+                  href={`/agendamentos?edit=${agendamento.id}`}
+                  className="text-sm text-gray-500 hover:text-primaria underline transition-colors"
                 >
-                  Cancelar agendamento
-                </button>
-              </div>
+                  Editar agendamento
+                </Link>
+
+              </div>      
             )}
           </div>
         )}
