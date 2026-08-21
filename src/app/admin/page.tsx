@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { ADMIN_STORAGE_KEY } from "@/lib/adminAuth";
 import AdminLogin from "@/components/AdminLogin";
 import { Calendar } from "lucide-react";
+import ListaAgendamentosAdmin from "@/components/ListaAgendamentosAdmin";
+import Header from "@/components/HEADER";
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -31,7 +33,8 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="flex flex-col w-full min-h-screen p-8 bg-branco gap-8">
+    <main className="flex flex-col w-full justify-center min-h-screen p-8 bg-branco gap-8">
+      <Header />
       <div className="max-w-6xl container mx-auto">
         <header className="flex justify-between items-center mb-8 pb-4 border-b border-gray-200">
           <div>
@@ -60,7 +63,7 @@ export default function AdminPage() {
           </p>
         </div>
       </div>
-      <div>
+      <div className="flex flex-col gap-12">
         <section className="flex gap-2 w-full justify-around">
           <div className="flex flex-col gap-6 bg-white px-6 py-4 w-full rounded-lg drop-shadow-xl">
             <div className="flex justify-between text-lg">
@@ -126,6 +129,9 @@ export default function AdminPage() {
               </p>
             </div>
           </div>
+        </section>
+        <section>
+          <ListaAgendamentosAdmin agendamentos={[]} />
         </section>
       </div>
     </main>
