@@ -352,7 +352,7 @@ const novoAgendamento = {
             </h1>
           </div>
           <div className="flex flex-wrap flex-col lg:justify-center lg:flex-row justify-between gap-8">
-            <Card size="default" className="min-w-60 max-h-100">
+            <Card size="default" className="min-w-60 h-fit">
               <CardContent className="flex justify-center">
                 <Calendar
                   mode="single"

@@ -15,16 +15,14 @@ const getAgendamentosLocais = (): any[] => {
 
 export async function buscarAgendamentoPorContato(
   contato: string
-): Promise<Agendamento | null> {
-  await new Promise((resolve) => setTimeout(resolve, 400)); 
+): Promise<Agendamento[]> { 
+  await new Promise((resolve) => setTimeout(resolve, 400));
 
   const termo = contato.trim().toLowerCase();
-  const apenasNumeros = termo.replace(/\D/g, ""); 
+  const apenasNumeros = termo.replace(/\D/g, "");
   const agendamentos = getAgendamentosLocais();
 
-  // Filtra TODOS os agendamentos que batem com o email ou telefone
   const encontrados = agendamentos.filter((item: any) => {
-    // Essa linha garante que funcione mesmo se houver dados antigos no seu navegador
     const ag = item.formData || item; 
 
     const emailMatch = ag.email?.toLowerCase() === termo;
@@ -35,12 +33,10 @@ export async function buscarAgendamentoPorContato(
     return emailMatch || telMatch;
   });
 
-  // Se não achou nenhum, retorna nulo
-  if (encontrados.length === 0) return null;
-
-  const ultimoEncontrado = encontrados[encontrados.length - 1];
+  // Retorna a lista completa mapeada, ou um array vazio se não achar nada
+  if (encontrados.length === 0) return [];
   
-  return (ultimoEncontrado.formData || ultimoEncontrado) as Agendamento;
+  return encontrados.map((item: any) => item.formData || item) as Agendamento[];
 }
 
 export async function cancelarAgendamento(id: string): Promise<void> {
