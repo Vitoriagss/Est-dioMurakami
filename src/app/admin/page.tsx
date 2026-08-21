@@ -34,9 +34,12 @@ export default function AdminPage() {
             telefone: raw.telefone || "",
             servico: raw.servico || { nome: raw.tipo || "Atendimento" },
             data: raw.data
-              ? typeof raw.data === "string"
-                ? raw.data
-                : new Date(raw.data).toLocaleDateString("pt-BR")
+              ? new Date(raw.data).toLocaleDateString("pt-BR", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  timeZone: "America/Sao_Paulo",
+                })
               : new Date().toLocaleDateString("pt-BR"),
             horaInicio: raw.horaInicio || horarios[0] || "08:00",
             horaFim: raw.horaFim || horarios[horarios.length - 1] || "09:00",
