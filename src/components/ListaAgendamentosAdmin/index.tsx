@@ -12,6 +12,7 @@ import {
   FileText,
   Tag,
 } from "lucide-react";
+import { ScrollArea } from "../ui/scroll-area";
 
 interface Props {
   agendamentos: Agendamento[];
@@ -103,7 +104,7 @@ export default function ListaAgendamentosAdmin({ agendamentos }: Props) {
       {/* Painel Lateral (Drawer) */}
 
       {agendamentoSelecionado && (
-        <section className="px-12 py-8 bg-white w-125 h-fit shadow-2xl rounded-lg">
+        <section className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 lg:static px-12 py-8 bg-white max-w-125 h-fit shadow-2xl rounded-lg">
           <div className="flex justify-end bg-black/40">
             <div className="w-full max-w-md bg-white h-full overflow-y-auto flex flex-col justify-between animate-in slide-in-from-right duration-200">
               <div>
