@@ -23,7 +23,9 @@ export async function buscarAgendamentoPorContato(
   const agendamentos = getAgendamentosLocais();
 
   const encontrados = agendamentos.filter((item: any) => {
-    const ag = item.formData || item; 
+    const ag = item.formData || item;
+
+    if (ag.status === "cancelado") return false;
 
     const emailMatch = ag.email?.toLowerCase() === termo;
     const telMatch =
@@ -35,8 +37,24 @@ export async function buscarAgendamentoPorContato(
 
   // Retorna a lista completa mapeada, ou um array vazio se não achar nada
   if (encontrados.length === 0) return [];
-  
-  return encontrados.map((item: any) => item.formData || item) as Agendamento[];
+
+  const listaMapeada = encontrados.map((item: any) => item.formData || item) as Agendamento[];
+
+  listaMapeada.sort((a, b) => { // função para ordenar cronologicamente os agendamentos na página de status
+    const dataA = new Date(a.data).setHours(0, 0, 0, 0);
+    const dataB = new Date(b.data).setHours(0, 0, 0, 0);
+
+    if (dataA !== dataB) {
+      return dataA - dataB;
+    }
+
+    const horaA = a.horaInicio || "00:00";
+    const horaB = b.horaInicio || "00:00";
+    
+    return horaA.localeCompare(horaB);
+  });
+
+  return listaMapeada;
 }
 
 export async function cancelarAgendamento(id: string): Promise<void> {
