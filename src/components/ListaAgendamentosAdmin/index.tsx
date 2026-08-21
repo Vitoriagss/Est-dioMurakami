@@ -46,9 +46,9 @@ export default function ListaAgendamentosAdmin({ agendamentos }: Props) {
   };
 
   return (
-    <div className="w-full relative">
+    <div className="w-full flex gap-6 items-center">
       {/* Tabela / Lista de Agendamentos */}
-      <div className="bg-white rounded-2xl shadow-sm border border-bege overflow-hidden">
+      <div className="bg-white rounded-2xl w-full py-2 shadow-sm border border-bege overflow-hidden">
         <div className="p-6 border-b border-gray-100">
           <h2 className="text-xl font-bold text-gray-800">
             Agendamentos Realizados
@@ -71,7 +71,6 @@ export default function ListaAgendamentosAdmin({ agendamentos }: Props) {
                   <th className="px-6 py-4">Serviço</th>
                   <th className="px-6 py-4">Data / Hora</th>
                   <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4 text-right">Ação</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -93,11 +92,6 @@ export default function ListaAgendamentosAdmin({ agendamentos }: Props) {
                       {item.data} às {item.horaInicio}
                     </td>
                     <td className="px-6 py-4">{getStatusBadge(item.status)}</td>
-                    <td className="px-6 py-4 text-right">
-                      <button className="text-primaria font-semibold hover:underline text-xs">
-                        Ver Detalhes
-                      </button>
-                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -107,106 +101,102 @@ export default function ListaAgendamentosAdmin({ agendamentos }: Props) {
       </div>
 
       {/* Painel Lateral (Drawer) */}
+
       {agendamentoSelecionado && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-sm">
-          <div className="w-full max-w-md bg-white h-full shadow-2xl p-6 overflow-y-auto flex flex-col justify-between animate-in slide-in-from-right duration-200">
-            <div>
-              <div className="flex justify-between items-center pb-4 mb-6 border-b border-gray-100">
-                <h3 className="text-lg font-bold text-gray-800">
-                  Detalhes do Agendamento
-                </h3>
-                <button
-                  onClick={() => setAgendamentoSelecionado(null)}
-                  className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-
-              <div className="space-y-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-red-50 text-primaria rounded-xl">
-                    <User size={24} />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-400 font-medium">Cliente</p>
-                    <p className="text-lg font-bold text-gray-800">
-                      {agendamentoSelecionado.nomeCliente}
-                    </p>
-                  </div>
+        <section className="px-12 py-8 bg-white w-125 h-fit shadow-2xl rounded-lg">
+          <div className="flex justify-end bg-black/40">
+            <div className="w-full max-w-md bg-white h-full overflow-y-auto flex flex-col justify-between animate-in slide-in-from-right duration-200">
+              <div>
+                <div className="flex justify-between items-center pb-4 mb-6 border-b border-gray-100">
+                  <h3 className="text-lg font-bold text-gray-800">
+                    Detalhes do Agendamento
+                  </h3>
+                  <button
+                    onClick={() => setAgendamentoSelecionado(null)}
+                    className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
+                  >
+                    <X size={20} />
+                  </button>
                 </div>
-
-                <div className="space-y-4 pt-2">
-                  <div className="flex items-center gap-3 text-sm text-gray-700">
-                    <Mail size={18} className="text-gray-400" />
-                    <span>
-                      {agendamentoSelecionado.email || "Não informado"}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-3 text-sm text-gray-700">
-                    <Phone size={18} className="text-gray-400" />
-                    <span>
-                      {agendamentoSelecionado.telefone || "Não informado"}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-3 text-sm text-gray-700">
-                    <Tag size={18} className="text-gray-400" />
-                    <span>
-                      Serviço:{" "}
-                      <strong>
-                        {typeof agendamentoSelecionado.servico === "string"
-                          ? agendamentoSelecionado.servico
-                          : agendamentoSelecionado.servico?.nome}
-                      </strong>
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-3 text-sm text-gray-700">
-                    <Calendar size={18} className="text-gray-400" />
-                    <span>Data: {agendamentoSelecionado.data}</span>
-                  </div>
-
-                  <div className="flex items-center gap-3 text-sm text-gray-700">
-                    <Clock size={18} className="text-gray-400" />
-                    <span>
-                      Horário: {agendamentoSelecionado.horaInicio} -{" "}
-                      {agendamentoSelecionado.horaFim}
-                    </span>
-                  </div>
-
-                  <div className="pt-2">
-                    <p className="text-xs text-gray-400 font-medium mb-1">
-                      Status Atual
-                    </p>
-                    {getStatusBadge(agendamentoSelecionado.status)}
-                  </div>
-
-                  {agendamentoSelecionado.descricao && (
-                    <div className="pt-2">
-                      <p className="text-xs text-gray-400 font-medium mb-1 flex items-center gap-1">
-                        <FileText size={14} /> Observações / Assunto
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-red-50 text-primaria rounded-xl">
+                      <User size={24} />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-400 font-medium">
+                        Cliente
                       </p>
-                      <p className="p-3 bg-gray-50 rounded-xl text-sm text-gray-600 border border-gray-100">
-                        {agendamentoSelecionado.descricao}
+                      <p className="text-lg font-bold text-gray-800">
+                        {agendamentoSelecionado.nomeCliente}
                       </p>
                     </div>
-                  )}
+                  </div>
+                  <div className="space-y-4 pt-2">
+                    <div className="flex items-center gap-3 text-sm text-gray-700">
+                      <Mail size={18} className="text-gray-400" />
+                      <span>
+                        {agendamentoSelecionado.email || "Não informado"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-gray-700">
+                      <Phone size={18} className="text-gray-400" />
+                      <span>
+                        {agendamentoSelecionado.telefone || "Não informado"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-gray-700">
+                      <Tag size={18} className="text-gray-400" />
+                      <span>
+                        Serviço:{" "}
+                        <strong>
+                          {typeof agendamentoSelecionado.servico === "string"
+                            ? agendamentoSelecionado.servico
+                            : agendamentoSelecionado.servico?.nome}
+                        </strong>
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-gray-700">
+                      <Calendar size={18} className="text-gray-400" />
+                      <span>Data: {agendamentoSelecionado.data}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-gray-700">
+                      <Clock size={18} className="text-gray-400" />
+                      <span>
+                        Horário: {agendamentoSelecionado.horaInicio} -{" "}
+                        {agendamentoSelecionado.horaFim}
+                      </span>
+                    </div>
+                    <div className="pt-2">
+                      <p className="text-xs text-gray-400 font-medium mb-1">
+                        Status Atual
+                      </p>
+                      {getStatusBadge(agendamentoSelecionado.status)}
+                    </div>
+                    {agendamentoSelecionado.descricao && (
+                      <div className="pt-2">
+                        <p className="text-xs text-gray-400 font-medium mb-1 flex items-center gap-1">
+                          <FileText size={14} /> Observações / Assunto
+                        </p>
+                        <p className="p-3 bg-gray-50 rounded-xl text-sm text-gray-600 border border-gray-100">
+                          {agendamentoSelecionado.descricao}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div className="pt-6 border-t border-gray-100">
-              <button
-                onClick={() => setAgendamentoSelecionado(null)}
-                className="w-full py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors"
-              >
-                Fechar
-              </button>
+              <div className="pt-6 border-t border-gray-100">
+                <button
+                  onClick={() => setAgendamentoSelecionado(null)}
+                  className="w-full py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors"
+                >
+                  Fechar
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
       )}
     </div>
   );
