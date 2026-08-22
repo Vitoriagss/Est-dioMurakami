@@ -48,22 +48,17 @@ export default function ListaAgendamentosAdmin({
     }
 
     const lidarComScroll = () => {
-      // Se a tela for menor que o breakpoint 'lg' do Tailwind, trava o scroll
       if (window.innerWidth < 1024) {
         document.body.style.overflow = "hidden";
       } else {
-        // Se for desktop, garante que o scroll fique livre
         document.body.style.overflow = "";
       }
     };
 
-    // Aplica a verificação assim que o modal abre
     lidarComScroll();
 
-    // Fica "ouvindo" caso o usuário redimensione a janela do navegador
     window.addEventListener("resize", lidarComScroll);
 
-    // Limpeza de segurança ao fechar o modal
     return () => {
       window.removeEventListener("resize", lidarComScroll);
       document.body.style.overflow = "";

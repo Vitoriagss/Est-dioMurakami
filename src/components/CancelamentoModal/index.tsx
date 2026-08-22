@@ -13,6 +13,21 @@ export default function CancelamentoModal({
   onClose,
   onConfirm,
 }: CancelamentoModalProps) {
+  
+  const formatarDataModal = (dataIso: string) => {
+    if (!dataIso) return "";
+    const parsedDate = new Date(
+      dataIso.includes("T") ? dataIso : `${dataIso}T00:00:00`
+    );
+    if (isNaN(parsedDate.getTime())) return dataIso;
+
+    return parsedDate.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div className="bg-branco rounded-2xl p-6 max-w-md w-full space-y-4 border border-bege">
@@ -23,7 +38,7 @@ export default function CancelamentoModal({
           Deseja mesmo cancelar o agendamento de{" "}
           <strong className="text-primaria">{agendamento.nomeCliente}</strong>{" "}
           para o dia{" "}
-          <strong>{agendamento.data}</strong>
+          <strong>{formatarDataModal(agendamento.data)}</strong>
           , às <strong>{agendamento.horaInicio}</strong>? Esta ação não pode ser
           desfeita.
         </p>
