@@ -16,7 +16,7 @@ export default function ConfirmacaoModal({ agendamento, onClose, onConfirm }: Co
         <p className="text-secundaria">
           Deseja confirmar o agendamento de{" "}
           <strong className="text-primaria">{agendamento.nomeCliente}</strong> para o dia{" "}
-          <strong>{new Date(agendamento.data).toLocaleDateString("pt-BR")}</strong>, às{" "}
+          <strong>{agendamento.data}</strong>, às{" "}
           <strong>{agendamento.horaInicio}</strong>?
         </p>
         <div className="flex gap-3 justify-end pt-2">
