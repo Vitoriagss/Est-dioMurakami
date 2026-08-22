@@ -78,21 +78,23 @@ export default function FormsAgenda({
     const savedData = localStorage.getItem("agendamentos");
     if (savedData) {
       const parsedData = JSON.parse(savedData);
-      
+
       // Filtra os agendamentos do mesmo dia
       const ocupadosNoDia = parsedData.filter((a: any) => {
         // Ignora os cancelados
         if (a.status === "cancelado") return false;
         // Ignora o próprio agendamento sendo editado (para liberar o horário dele mesmo)
         if (editId && a.id === editId) return false;
-        
+
         const dataSalva = new Date(a.data).toDateString();
         const dataSelecionada = formData.data!.toDateString();
         return dataSalva === dataSelecionada;
       });
 
       // Extrai todos os horários que já foram pegos
-      const arrayDeHorarios = ocupadosNoDia.flatMap((a: any) => a.horario || []);
+      const arrayDeHorarios = ocupadosNoDia.flatMap(
+        (a: any) => a.horario || [],
+      );
       setHorariosOcupados(arrayDeHorarios);
     }
   }, [formData?.data, editId]);
@@ -181,7 +183,7 @@ export default function FormsAgenda({
 
     setErrors({});
 
-const novoAgendamento = {
+    const novoAgendamento = {
       id: editId || crypto.randomUUID(), // Mantém o ID se for edição
       nomeCliente: formData.nome,
       nome: formData.nome,
@@ -192,7 +194,9 @@ const novoAgendamento = {
       assunto: formData.assunto,
       descricao: formData.assunto,
       servico: { nome: formData.tipo },
-      data: formData.data ? formData.data.toISOString() : new Date().toISOString(),
+      data: formData.data
+        ? formData.data.toISOString()
+        : new Date().toISOString(),
       horaInicio: horarios[0] || "",
       horaFim: horarios[horarios.length - 1] || "",
       horario: horarios,
@@ -206,14 +210,22 @@ const novoAgendamento = {
 
       if (editId) {
         // Substitui o agendamento antigo pelo atualizado
-        novaLista = listaExistente.map((item: any) => item.id === editId ? novoAgendamento : item);
+        novaLista = listaExistente.map((item: any) =>
+          item.id === editId ? novoAgendamento : item,
+        );
       } else {
         // Adiciona um novo
-        novaLista = Array.isArray(listaExistente) ? [...listaExistente, novoAgendamento] : [listaExistente, novoAgendamento];
+        novaLista = Array.isArray(listaExistente)
+          ? [...listaExistente, novoAgendamento]
+          : [listaExistente, novoAgendamento];
       }
 
       localStorage.setItem("agendamentos", JSON.stringify(novaLista));
-      toast.success(editId ? "Agendamento atualizado com sucesso!" : "Agendamento salvo com sucesso!");
+      toast.success(
+        editId
+          ? "Agendamento atualizado com sucesso!"
+          : "Agendamento salvo com sucesso!",
+      );
     } catch (error) {
       console.error("Erro ao salvar:", error);
       toast.error("Erro ao salvar os dados no navegador.");
@@ -351,15 +363,15 @@ const novoAgendamento = {
               Selecione uma data e um horário
             </h1>
           </div>
-          <div className="flex flex-wrap flex-col lg:justify-center lg:flex-row justify-between gap-8">
-            <Card size="default" className="min-w-60 h-fit">
+          <div className="flex flex-col xl:justify-center xl:flex-row justify-between gap-8">
+            <Card size="default" className="min-w-60 max-h-100">
               <CardContent className="flex justify-center">
                 <Calendar
                   mode="single"
                   locale={ptBR}
                   selected={formData?.data}
                   onSelect={handleDateChange}
-                  className="p-0 [--cell-size:--spacing(8)] md:[--cell-size:--spacing(12)] lg:[--cell-size:--spacing(15)]"
+                  className="p-0 [--cell-size:--spacing(8)]"
                 />
               </CardContent>
             </Card>

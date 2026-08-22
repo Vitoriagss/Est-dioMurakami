@@ -79,7 +79,7 @@ export function DynamicTimePicker({
 
   return (
     <ScrollArea className="h-fit rounded-md border p-4">
-      <div className="grid grid-cols-4 gap-2 text-md md:text-sm">
+      <div className="grid grid-cols-4 gap-2 text-md md:text-sm w-75">
         {Hours.map((hour) => {
 
           const timeString = Number.isInteger(hour)
