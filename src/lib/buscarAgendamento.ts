@@ -60,10 +60,6 @@ export async function buscarAgendamentoPorContato(
   return listaMapeada;
 }
 
-export async function cancelarAgendamento(id: string): Promise<void> {
-  await atualizarStatus(id, "cancelado");
-}
-
 export async function confirmarAgendamento(id: string): Promise<void> {
   const lista = getAgendamentosSalvos();
 
