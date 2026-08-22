@@ -38,9 +38,12 @@ export async function buscarAgendamentoPorContato(
   // Retorna a lista completa mapeada, ou um array vazio se não achar nada
   if (encontrados.length === 0) return [];
 
-  const listaMapeada = encontrados.map((item: any) => item.formData || item) as Agendamento[];
+  const listaMapeada = encontrados.map(
+    (item: any) => item.formData || item,
+  ) as Agendamento[];
 
-  listaMapeada.sort((a, b) => { // função para ordenar cronologicamente os agendamentos na página de status
+  listaMapeada.sort((a, b) => {
+    // função para ordenar cronologicamente os agendamentos na página de status
     const dataA = new Date(a.data).setHours(0, 0, 0, 0);
     const dataB = new Date(b.data).setHours(0, 0, 0, 0);
 
@@ -50,26 +53,11 @@ export async function buscarAgendamentoPorContato(
 
     const horaA = a.horaInicio || "00:00";
     const horaB = b.horaInicio || "00:00";
-    
+
     return horaA.localeCompare(horaB);
   });
 
   return listaMapeada;
-}
-
-    return {
-      id: String(raw.id || Math.random()),
-      nomeCliente: raw.nomeCliente || raw.nome || "Cliente",
-      email: raw.email || "",
-      telefone: raw.telefone || "",
-      servico: raw.servico || { nome: raw.tipo || "Atendimento" },
-      data: raw.data || new Date().toISOString(),
-      horaInicio: raw.horaInicio || horarios[0] || "08:00",
-      horaFim: raw.horaFim || horarios[horarios.length - 1] || "09:00",
-      descricao: raw.descricao || raw.assunto || "",
-      status: raw.status || "pendente",
-    };
-  });
 }
 
 export async function confirmarAgendamento(id: string): Promise<void> {

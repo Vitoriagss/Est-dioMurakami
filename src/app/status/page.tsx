@@ -57,33 +57,13 @@ export default function StatusPage() {
     try {
       await cancelarAgendamento(idSelecionado);
       // Atualiza apenas o status do item correto na lista
-      setAgendamentos((prev) =>
-        prev.filter((ag) => ag.id !== idSelecionado)
-      );
-      
+      setAgendamentos((prev) => prev.filter((ag) => ag.id !== idSelecionado));
+
       setIsCancelModalOpen(false);
       toast.success("Agendamento cancelado com sucesso!");
     } catch (error) {
       console.error("Erro ao cancelar agendamento", error);
       toast.error("Erro ao cancelar o agendamento.");
-    }
-  };
-
-  const handleConfirmar = async () => {
-    if (!idSelecionado) return;
-    try {
-      await confirmarAgendamento(idSelecionado);
-      // Atualiza apenas o status do item correto na lista
-      setAgendamentos((prev) =>
-        prev.map((ag) =>
-          ag.id === idSelecionado ? { ...ag, status: "confirmado" } : ag,
-        ),
-      );
-      setIsConfirmModalOpen(false);
-      toast.success("Agendamento confirmado com sucesso!");
-    } catch (error) {
-      console.error("Erro ao confirmar agendamento", error);
-      toast.error("Erro ao confirmar o agendamento.");
     }
   };
 
@@ -197,18 +177,6 @@ export default function StatusPage() {
                 {agendamento.status !== "cancelado" && (
                   <div className="flex flex-col items-center gap-3 pt-4 border-t border-gray-100 mt-auto">
                     <div className="flex flex-col sm:flex-row gap-3 w-full">
-                      {agendamento.status === "pendente" && (
-                        <button
-                          onClick={() => {
-                            setIdSelecionado(agendamento.id);
-                            setIsConfirmModalOpen(true);
-                          }}
-                          className="w-full sm:w-auto flex-1 px-4 py-2 text-sm rounded-xl border border-green-600 text-green-600 hover:bg-green-50 transition-colors cursor-pointer"
-                        >
-                          Confirmar
-                        </button>
-                      )}
-
                       <button
                         onClick={() => {
                           setIdSelecionado(agendamento.id);
@@ -239,14 +207,6 @@ export default function StatusPage() {
           agendamento={agendamentoSelecionado}
           onClose={() => setIsCancelModalOpen(false)}
           onConfirm={handleConfirmarCancelamento}
-        />
-      )}
-
-      {isConfirmModalOpen && agendamentoSelecionado && (
-        <ConfirmacaoModal
-          agendamento={agendamentoSelecionado}
-          onClose={() => setIsConfirmModalOpen(false)}
-          onConfirm={handleConfirmar}
         />
       )}
     </main>
