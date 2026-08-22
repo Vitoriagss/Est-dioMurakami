@@ -54,6 +54,10 @@ export async function buscarAgendamentoPorContato(
   const encontrados = agendamentos.filter((item: any) => {
     const ag = item.formData || item;
 
+    if (ag.status === "cancelado") {
+      return false;
+    }
+
     // Converte a data do item atual dentro do loop
     const dataDoAgendamento = parseDataAgendamento(
       ag.data,
