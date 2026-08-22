@@ -7,6 +7,7 @@ import ListaAgendamentosAdmin from "@/components/ListaAgendamentosAdmin";
 import { Agendamento } from "@/lib/types";
 import { mockAgendamentos } from "@/lib/mockAgendamentos";
 import { Calendar, CheckCircle2, XCircle, Clock } from "lucide-react";
+import Header from "@/components/HEADER";
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -83,12 +84,15 @@ export default function AdminPage() {
 
   if (!isAuthenticated) {
     return (
-      <AdminLogin
-        onLoginSuccess={() => {
-          setIsAuthenticated(true);
-          carregarAgendamentos();
-        }}
-      />
+      <div>
+        <Header />
+        <AdminLogin
+          onLoginSuccess={() => {
+            setIsAuthenticated(true);
+            carregarAgendamentos();
+          }}
+        />
+      </div>
     );
   }
 
@@ -107,7 +111,7 @@ export default function AdminPage() {
   return (
     <main className="flex flex-col w-full min-h-screen p-8 bg-branco gap-8">
       <div className="max-w-6xl container mx-auto">
-        <header className="flex justify-between items-center mb-8 pb-4 border-b border-gray-200">
+        <header className="flex flex-col md:flex-row text-center md:text-start justify-between items-center mb-8 pb-4 gap-2 border-b border-gray-200">
           <div>
             <h1 className="text-3xl font-bold text-primaria">
               Painel de Administração
