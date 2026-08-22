@@ -1,26 +1,26 @@
 import { Agendamento } from "./types";
 
-// Função utilitária para pegar os dados do LocalStorage de forma segura
-const getAgendamentosLocais = (): any[] => {
+// Função utilitária para pegar a lista atual do localStorage
+function getAgendamentosSalvos(): any[] {
   if (typeof window === "undefined") return [];
   const dados = localStorage.getItem("agendamentos");
   if (!dados) return [];
   try {
     const parsed = JSON.parse(dados);
     return Array.isArray(parsed) ? parsed : [parsed];
-  } catch (e) {
+  } catch {
     return [];
   }
-};
+}
 
 export async function buscarAgendamentoPorContato(
-  contato: string
-): Promise<Agendamento[]> { 
+  contato: string,
+): Promise<Agendamento[]> {
   await new Promise((resolve) => setTimeout(resolve, 400));
 
   const termo = contato.trim().toLowerCase();
   const apenasNumeros = termo.replace(/\D/g, "");
-  const agendamentos = getAgendamentosLocais();
+  const agendamentos = getAgendamentosSalvos();
 
   const encontrados = agendamentos.filter((item: any) => {
     const ag = item.formData || item;
@@ -57,34 +57,54 @@ export async function buscarAgendamentoPorContato(
   return listaMapeada;
 }
 
-export async function cancelarAgendamento(id: string): Promise<void> {
-  await atualizarStatus(id, "cancelado");
+    return {
+      id: String(raw.id || Math.random()),
+      nomeCliente: raw.nomeCliente || raw.nome || "Cliente",
+      email: raw.email || "",
+      telefone: raw.telefone || "",
+      servico: raw.servico || { nome: raw.tipo || "Atendimento" },
+      data: raw.data || new Date().toISOString(),
+      horaInicio: raw.horaInicio || horarios[0] || "08:00",
+      horaFim: raw.horaFim || horarios[horarios.length - 1] || "09:00",
+      descricao: raw.descricao || raw.assunto || "",
+      status: raw.status || "pendente",
+    };
+  });
 }
 
 export async function confirmarAgendamento(id: string): Promise<void> {
-  await atualizarStatus(id, "confirmado");
-}
+  const lista = getAgendamentosSalvos();
 
-// Função centralizada para atualizar qualquer status
-async function atualizarStatus(
-  id: string,
-  novoStatus: "cancelado" | "confirmado"
-): Promise<void> {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  const agendamentos = getAgendamentosLocais();
-
-  const novaLista = agendamentos.map((item) => {
-    const obj = item.formData || item;
-    
-    // Se achou o ID correto, atualiza o status
-    if (String(obj.id) === String(id)) {
+  const listaAtualizada = lista.map((item) => {
+    const itemData = item.formData || item;
+    if (itemData.id === id || item.id === id) {
       if (item.formData) {
-        return { ...item, formData: { ...item.formData, status: novoStatus } };
+        return {
+          ...item,
+          formData: { ...item.formData, status: "confirmado" },
+        };
       }
-      return { ...item, status: novoStatus };
+      return { ...item, status: "confirmado" };
     }
-    return item; // Se não for o ID, devolve intacto
+    return item;
   });
 
-  localStorage.setItem("agendamentos", JSON.stringify(novaLista));
+  localStorage.setItem("agendamentos", JSON.stringify(listaAtualizada));
+}
+
+export async function cancelarAgendamento(id: string): Promise<void> {
+  const lista = getAgendamentosSalvos();
+
+  const listaAtualizada = lista.map((item) => {
+    const itemData = item.formData || item;
+    if (itemData.id === id || item.id === id) {
+      if (item.formData) {
+        return { ...item, formData: { ...item.formData, status: "cancelado" } };
+      }
+      return { ...item, status: "cancelado" };
+    }
+    return item;
+  });
+
+  localStorage.setItem("agendamentos", JSON.stringify(listaAtualizada));
 }

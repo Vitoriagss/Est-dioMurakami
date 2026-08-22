@@ -19,7 +19,7 @@ export default function StatusPage() {
   const [busca, setBusca] = useState("");
   const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
   const [idSelecionado, setIdSelecionado] = useState<string | null>(null);
-  
+
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
@@ -76,8 +76,8 @@ export default function StatusPage() {
       // Atualiza apenas o status do item correto na lista
       setAgendamentos((prev) =>
         prev.map((ag) =>
-          ag.id === idSelecionado ? { ...ag, status: "confirmado" } : ag
-        )
+          ag.id === idSelecionado ? { ...ag, status: "confirmado" } : ag,
+        ),
       );
       setIsConfirmModalOpen(false);
       toast.success("Agendamento confirmado com sucesso!");
@@ -92,7 +92,8 @@ export default function StatusPage() {
   }
 
   // Pega o objeto completo do agendamento selecionado para passar para os modais
-  const agendamentoSelecionado = agendamentos.find((ag) => ag.id === idSelecionado) || null;
+  const agendamentoSelecionado =
+    agendamentos.find((ag) => ag.id === idSelecionado) || null;
 
   return (
     <main className="grow py-12 pt-32 pb-12 md:pt-40">
