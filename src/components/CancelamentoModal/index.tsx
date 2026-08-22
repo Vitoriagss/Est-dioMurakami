@@ -23,9 +23,7 @@ export default function CancelamentoModal({
           Deseja mesmo cancelar o agendamento de{" "}
           <strong className="text-primaria">{agendamento.nomeCliente}</strong>{" "}
           para o dia{" "}
-          <strong>
-            {new Date(agendamento.data).toLocaleDateString("pt-BR")}
-          </strong>
+          <strong>{agendamento.data}</strong>
           , às <strong>{agendamento.horaInicio}</strong>? Esta ação não pode ser
           desfeita.
         </p>
