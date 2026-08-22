@@ -1,0 +1,59 @@
+import Image from "next/image";
+import logopreta from "../img/logopreta.png";
+
+const SERVICOS = [
+  "Consultoria Inicial",
+  "Planejamento Estratégico",
+  "Acompanhamento Mensal",
+  "Revisão de Processos",
+  "Mentoria Executiva",
+  "Diagnóstico Financeiro",
+];
+
+export function Sobre() {
+  return (
+    <section
+      id="sobre"
+      className="scroll-mt-28 min-h-screen bg-primaria shadow-[0px_4px_4px_0px_rgba(0,0,0,0.60)] flex flex-col items-center justify-center py-12"
+    >
+      <div className="container mx-auto flex flex-col items-center gap-10 xl:gap-14 px-4 sm:px-10 xl:px-16">
+        <div className="w-full flex flex-col items-center xl:flex-row xl:items-center xl:justify-between gap-10 xl:gap-16">
+          <Image
+            src={logopreta}
+            alt="Logo Estúdio Murakami"
+            className="w-full max-w-[800px] aspect-square h-auto shrink-0 mx-auto xl:mx-0"
+          />
+
+          <div className="flex-1 flex flex-col items-center lg:items-start gap-6 lg:gap-10 text-center lg:text-left">
+            <h1 className="font-(family-name:--font-playfair) text-4xl lg:text-6xl font-semibold text-orange-50">
+              Sobre nós
+            </h1>
+            <p className="font-(family-name:--font-montserrat-sans) text-2xl lg:text-3xl font-semibold text-orange-50">
+              Sua Agenda trabalha pra você.
+            </p>
+            <p className="font-(family-name:--font-montserrat-sans) text-lg lg:text-xl font-semibold text-orange-50 text-justify leading-relaxed">
+              28,9% dos agendamentos do Murakami acontecem fora do horário
+              comercial — o link atende quando você já fechou a porta.
+            </p>
+          </div>
+        </div>
+
+        <div
+          aria-hidden
+          className="w-screen ml-translate-x-1/2 overflow-hidden"
+        >
+          <div className="flex w-max gap-16 animate-[marquee_15s_linear_infinite]">
+            {[...SERVICOS, ...SERVICOS].map((servico, i) => (
+              <span
+                key={`${servico}-${i}`}
+                className="font-(family-name:--font-montserrat-sans) text-2xl lg:text-3xl font-semibold text-orange-50 whitespace-nowrap"
+              >
+                {servico}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
