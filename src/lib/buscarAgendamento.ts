@@ -13,6 +13,34 @@ function getAgendamentosSalvos(): any[] {
   }
 }
 
+const parseDataAgendamento = (dataStr: string, horaStr?: string) => {
+  if (!dataStr) return new Date(0);
+
+  const hora = horaStr || "00:00";
+  let ano = 0,
+    mes = 0,
+    dia = 0;
+
+  if (dataStr.includes("-")) {
+    const dataLimpa = dataStr.split("T")[0];
+    const partes = dataLimpa.split("-");
+    ano = parseInt(partes[0], 10);
+    mes = parseInt(partes[1], 10) - 1;
+    dia = parseInt(partes[2], 10);
+  } else if (dataStr.includes("/")) {
+    const partes = dataStr.split("/");
+    dia = parseInt(partes[0], 10);
+    mes = parseInt(partes[1], 10) - 1;
+    ano = parseInt(partes[2], 10);
+  } else {
+    return new Date(0);
+  }
+
+  const [horas, minutos] = hora.split(":").map((n) => parseInt(n, 10) || 0);
+
+  return new Date(ano, mes, dia, horas, minutos);
+};
+
 export async function buscarAgendamentoPorContato(
   contato: string,
 ): Promise<Agendamento[]> {
@@ -21,11 +49,21 @@ export async function buscarAgendamentoPorContato(
   const termo = contato.trim().toLowerCase();
   const apenasNumeros = termo.replace(/\D/g, "");
   const agendamentos = getAgendamentosSalvos();
+  const agora = new Date();
 
   const encontrados = agendamentos.filter((item: any) => {
     const ag = item.formData || item;
 
-    if (ag.status === "cancelado") return false;
+    // Converte a data do item atual dentro do loop
+    const dataDoAgendamento = parseDataAgendamento(
+      ag.data,
+      ag.horaInicio || ag.horaFim,
+    );
+
+    // Ignora se a reunião já passou
+    if (dataDoAgendamento < agora) {
+      return false;
+    }
 
     const emailMatch = ag.email?.toLowerCase() === termo;
     const telMatch =
@@ -35,26 +73,18 @@ export async function buscarAgendamentoPorContato(
     return emailMatch || telMatch;
   });
 
-  // Retorna a lista completa mapeada, ou um array vazio se não achar nada
   if (encontrados.length === 0) return [];
 
   const listaMapeada = encontrados.map(
     (item: any) => item.formData || item,
   ) as Agendamento[];
 
+  // Ordena utilizando a função parseDataAgendamento para evitar NaN
   listaMapeada.sort((a, b) => {
-    // função para ordenar cronologicamente os agendamentos na página de status
-    const dataA = new Date(a.data).setHours(0, 0, 0, 0);
-    const dataB = new Date(b.data).setHours(0, 0, 0, 0);
+    const dataA = parseDataAgendamento(a.data, a.horaInicio).getTime();
+    const dataB = parseDataAgendamento(b.data, b.horaInicio).getTime();
 
-    if (dataA !== dataB) {
-      return dataA - dataB;
-    }
-
-    const horaA = a.horaInicio || "00:00";
-    const horaB = b.horaInicio || "00:00";
-
-    return horaA.localeCompare(horaB);
+    return dataA - dataB;
   });
 
   return listaMapeada;
