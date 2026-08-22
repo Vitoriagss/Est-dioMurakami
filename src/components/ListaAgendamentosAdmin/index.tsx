@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Agendamento } from "@/lib/types";
 import {
   X,
@@ -39,6 +39,36 @@ export default function ListaAgendamentosAdmin({
   const [filtroStatus, setFiltroStatus] = useState<FiltroStatus>("todos");
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+
+// Trava o scroll do fundo APENAS no mobile (telas menores que 1024px)
+  useEffect(() => {
+    if (!agendamentoSelecionado) {
+      document.body.style.overflow = "";
+      return;
+    }
+
+    const lidarComScroll = () => {
+      // Se a tela for menor que o breakpoint 'lg' do Tailwind, trava o scroll
+      if (window.innerWidth < 1024) {
+        document.body.style.overflow = "hidden";
+      } else {
+        // Se for desktop, garante que o scroll fique livre
+        document.body.style.overflow = "";
+      }
+    };
+
+    // Aplica a verificação assim que o modal abre
+    lidarComScroll();
+
+    // Fica "ouvindo" caso o usuário redimensione a janela do navegador
+    window.addEventListener("resize", lidarComScroll);
+
+    // Limpeza de segurança ao fechar o modal
+    return () => {
+      window.removeEventListener("resize", lidarComScroll);
+      document.body.style.overflow = "";
+    };
+  }, [agendamentoSelecionado]);
 
   const parseDataAgendamento = (dataStr: string, horaStr?: string) => {
     if (!dataStr) return new Date(0);
@@ -278,21 +308,20 @@ export default function ListaAgendamentosAdmin({
       {/* Painel Lateral (Drawer) */}
 
       {agendamentoSelecionado && (
-        <section className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 lg:top-0 lg:left-0 lg:translate-x-0 lg:translate-y-0 lg:static px-12 py-8 bg-white max-w-100 w-full h-fit shadow-2xl rounded-lg">
-          <div className="flex">
-            <div className="w-full max-w-md bg-white h-full overflow-y-auto flex flex-col justify-between animate-in slide-in-from-right duration-200">
-              <div>
-                <div className="flex justify-between items-center pb-4 mb-6 border-b border-gray-100">
-                  <h3 className="text-lg font-bold text-gray-800">
-                    Detalhes do Agendamento
-                  </h3>
-                  <button
-                    onClick={() => setAgendamentoSelecionado(null)}
-                    className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
+        <section className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 lg:translate-x-0 lg:translate-y-0 lg:static p-5 sm:p-8 bg-white w-[95%] sm:w-full max-w-md lg:max-w-100 max-h-[95dvh] flex flex-col shadow-2xl rounded-2xl overflow-hidden">
+          <div className="w-full bg-white h-full overflow-y-auto pr-1 flex flex-col justify-between animate-in slide-in-from-right duration-200">
+            <div>
+              <div className="flex justify-between items-center pb-4 mb-6 border-b border-gray-100">
+                <h3 className="text-lg font-bold text-gray-800">
+                  Detalhes do Agendamento
+                </h3>
+                <button
+                  onClick={() => setAgendamentoSelecionado(null)}
+                  className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
                     <div className="p-3 bg-red-50 text-primaria rounded-xl">
@@ -382,13 +411,12 @@ export default function ListaAgendamentosAdmin({
                 )}
                 <button
                   onClick={() => setAgendamentoSelecionado(null)}
-                  className="w-full py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors"
+                  className="w-full py-3 my-1 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors"
                 >
                   Fechar
                 </button>
               </div>
             </div>
-          </div>
         </section>
       )}
 
