@@ -49,13 +49,13 @@ export function Segmentos() {
               className="flex items-center gap-4"
             >
               <EmailIcon className="size-6 sm:size-7 shrink-0" aria-hidden />
-              <span className="font-(family-name:--font-montserrat-sans) text-base sm:text-lg lg:text-xl font-semibold text-black break-all sm:break-normal">
+              <span className="font-(family-name:--font-montserrat-sans) text-sm sm:text-lg lg:text-xl font-semibold text-black break-all sm:break-normal">
                 estudiomurakami@email.com
               </span>
             </a>
             <a href="tel:+5599999999999" className="flex items-center gap-4">
-              <PhoneIcon className="size-7" aria-hidden />
-              <span className="font-(family-name:--font-montserrat-sans) text-lg lg:text-xl font-semibold text-black">
+              <PhoneIcon className="size-7 sm:size-7" aria-hidden />
+              <span className="font-(family-name:--font-montserrat-sans) text-sm sm:text-xl font-semibold text-black">
                 (99) 99999-9999
               </span>
             </a>
@@ -65,8 +65,8 @@ export function Segmentos() {
               rel="noopener noreferrer"
               className="flex items-center gap-4"
             >
-              <InstagramIcon className="size-7" aria-hidden />
-              <span className="font-(family-name:--font-montserrat-sans) text-lg lg:text-xl font-semibold text-black">
+              <InstagramIcon className="size-6 sm:size-7" aria-hidden />
+              <span className="font-(family-name:--font-montserrat-sans) text-sm sm:text-xl font-semibold text-black">
                 @estudiomurakami
               </span>
             </a>

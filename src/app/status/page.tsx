@@ -58,10 +58,9 @@ export default function StatusPage() {
       await cancelarAgendamento(idSelecionado);
       // Atualiza apenas o status do item correto na lista
       setAgendamentos((prev) =>
-        prev.map((ag) =>
-          ag.id === idSelecionado ? { ...ag, status: "cancelado" } : ag,
-        ),
+        prev.filter((ag) => ag.id !== idSelecionado)
       );
+      
       setIsCancelModalOpen(false);
       toast.success("Agendamento cancelado com sucesso!");
     } catch (error) {
