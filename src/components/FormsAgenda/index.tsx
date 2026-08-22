@@ -276,7 +276,7 @@ export default function FormsAgenda({
               Selecione uma data e um horário
             </h1>
           </div>
-          <div className="flex flex-wrap flex-col lg:justify-center lg:flex-row justify-between gap-8">
+          <div className="flex flex-col xl:justify-center xl:flex-row justify-between gap-8">
             <Card size="default" className="min-w-60 max-h-100">
               <CardContent className="flex justify-center">
                 <Calendar
@@ -284,7 +284,7 @@ export default function FormsAgenda({
                   locale={ptBR}
                   selected={formData.data}
                   onSelect={handleDateChange}
-                  className="p-0 [--cell-size:--spacing(8)] md:[--cell-size:--spacing(12)] lg:[--cell-size:--spacing(15)]"
+                  className="p-0 [--cell-size:--spacing(8)]"
                 />
               </CardContent>
             </Card>
