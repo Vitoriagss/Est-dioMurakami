@@ -2,9 +2,19 @@
 
 import FormsAgenda from "@/components/FormsAgenda";
 import Header from "@/components/HEADER";
-import { Calendar, Clock, Info, Mail, MapPin, Phone, User } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Info,
+  Mail,
+  MapPin,
+  Phone,
+  User,
+  ChevronLeft,
+} from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "react-toastify";
@@ -21,6 +31,7 @@ export interface FormData {
 }
 
 export default function Agendamentos() {
+  const [isMounted, setIsMounted] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     nome: "",
     email: "",
@@ -32,25 +43,42 @@ export default function Agendamentos() {
     horario: [],
   });
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) return null;
+
   const handleFinalSubmit = (data: FormData) => {
     console.log("Formulário submetido para a API:", data);
     toast.success("Agendamento efetuado com sucesso!");
   };
 
-  const dataFormatada = formData.data
+  const horarios = formData?.horario || [];
+
+  const dataFormatada = formData?.data
     ? format(formData.data, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
     : "Selecione uma data";
 
   const horarioFormatado =
-    formData.horario.length > 0
-      ? `${formData.horario[0]} às ${formData.horario[formData.horario.length - 1]}`
+    horarios.length > 0
+      ? `${horarios[0]} às ${horarios[horarios.length - 1]}`
       : "Selecione um horário";
 
   return (
     <main className="bg-branco grow">
       <Header />
       <div className="container mx-auto flex flex-col px-4 md:px-16 pt-32 pb-12 md:pt-40 gap-4">
-        {/* Título */}
+        <div className="flex justify-between items-center w-full mb-6 md:mb-10">
+          <Link
+            href="/"
+            className="flex items-center text-vermelho hover:opacity-80 transition-opacity w-fit font-medium"
+          >
+            <ChevronLeft size={20} />
+            Voltar para o início
+          </Link>
+        </div>
+
         <section>
           <div className="flex flex-col gap-6">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-playfair font-bold text-center lg:text-start">
@@ -79,9 +107,7 @@ export default function Agendamentos() {
                 <div>
                   <p className="text-gray-800 text-sm">CLIENTE</p>
                   <p className="text-lg font-semibold">
-                    {formData.nome.trim() !== ""
-                      ? formData.nome
-                      : "Nome cliente"}
+                    {formData?.nome?.trim() ? formData.nome : "Nome cliente"}
                   </p>
                 </div>
               </div>
@@ -92,7 +118,7 @@ export default function Agendamentos() {
                 <div>
                   <p className="text-gray-800 text-sm">SERVIÇO</p>
                   <p className="text-lg font-semibold">
-                    {formData.tipo.trim() !== ""
+                    {formData?.tipo?.trim()
                       ? formData.tipo
                       : "Consultoria Inicial"}
                   </p>
@@ -111,7 +137,7 @@ export default function Agendamentos() {
                 </div>
               </div>
             </div>
-            {/* Informações Gerais */}
+
             <div className="flex flex-col gap-4 px-6 mx-4 text-center items-center md:items-start md:text-start">
               <h1 className="text-xl font-semibold">Informações Gerais</h1>
               <p className="flex gap-2 text-gray-700 text-sm">

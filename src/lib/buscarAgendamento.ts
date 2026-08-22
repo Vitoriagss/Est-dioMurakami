@@ -1,35 +1,90 @@
 import { Agendamento } from "./types";
-import { mockAgendamentos } from "./mockAgendamentos";
 
-// TODO: substituir por chamada real ao Strapi quando o backend estiver pronto.
-// Ex: const response = await api.get("/agendamentos", { params: { filters: {...} } });
-export async function buscarAgendamentoPorContato(contato: string): Promise<Agendamento | null> {
-  // simula o tempo de uma requisição de rede
-  await new Promise((resolve) => setTimeout(resolve, 600));
+// Função utilitária para pegar os dados do LocalStorage de forma segura
+const getAgendamentosLocais = (): any[] => {
+  if (typeof window === "undefined") return [];
+  const dados = localStorage.getItem("agendamentos");
+  if (!dados) return [];
+  try {
+    const parsed = JSON.parse(dados);
+    return Array.isArray(parsed) ? parsed : [parsed];
+  } catch (e) {
+    return [];
+  }
+};
 
-  const encontrado = mockAgendamentos.find(
-    (agendamento) => agendamento.email === contato || agendamento.telefone === contato
-  );
+export async function buscarAgendamentoPorContato(
+  contato: string
+): Promise<Agendamento[]> { 
+  await new Promise((resolve) => setTimeout(resolve, 400));
 
-  return encontrado ?? null;
+  const termo = contato.trim().toLowerCase();
+  const apenasNumeros = termo.replace(/\D/g, "");
+  const agendamentos = getAgendamentosLocais();
+
+  const encontrados = agendamentos.filter((item: any) => {
+    const ag = item.formData || item;
+
+    if (ag.status === "cancelado") return false;
+
+    const emailMatch = ag.email?.toLowerCase() === termo;
+    const telMatch =
+      apenasNumeros.length > 0 &&
+      ag.telefone?.replace(/\D/g, "").includes(apenasNumeros);
+
+    return emailMatch || telMatch;
+  });
+
+  // Retorna a lista completa mapeada, ou um array vazio se não achar nada
+  if (encontrados.length === 0) return [];
+
+  const listaMapeada = encontrados.map((item: any) => item.formData || item) as Agendamento[];
+
+  listaMapeada.sort((a, b) => { // função para ordenar cronologicamente os agendamentos na página de status
+    const dataA = new Date(a.data).setHours(0, 0, 0, 0);
+    const dataB = new Date(b.data).setHours(0, 0, 0, 0);
+
+    if (dataA !== dataB) {
+      return dataA - dataB;
+    }
+
+    const horaA = a.horaInicio || "00:00";
+    const horaB = b.horaInicio || "00:00";
+    
+    return horaA.localeCompare(horaB);
+  });
+
+  return listaMapeada;
 }
 
-// TODO: substituir por chamada real ao Strapi (PUT /agendamentos/:id)
 export async function cancelarAgendamento(id: string): Promise<void> {
-  await new Promise((resolve) => setTimeout(resolve, 400));
-
-  const agendamento = mockAgendamentos.find((a) => a.id === id);
-  if (agendamento) {
-    agendamento.status = "cancelado";
-  }
+  await atualizarStatus(id, "cancelado");
 }
 
-// TODO: substituir por chamada real ao Strapi (PUT /agendamentos/:id)
 export async function confirmarAgendamento(id: string): Promise<void> {
-  await new Promise((resolve) => setTimeout(resolve, 400));
+  await atualizarStatus(id, "confirmado");
+}
 
-  const agendamento = mockAgendamentos.find((a) => a.id === id);
-  if (agendamento) {
-    agendamento.status = "confirmado";
-  }
+// Função centralizada para atualizar qualquer status
+async function atualizarStatus(
+  id: string,
+  novoStatus: "cancelado" | "confirmado"
+): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const agendamentos = getAgendamentosLocais();
+
+  const novaLista = agendamentos.map((item) => {
+    const obj = item.formData || item;
+    
+    // Se achou o ID correto, atualiza o status
+    if (String(obj.id) === String(id)) {
+      if (item.formData) {
+        return { ...item, formData: { ...item.formData, status: novoStatus } };
+      }
+      return { ...item, status: novoStatus };
+    }
+    return item; // Se não for o ID, devolve intacto
+  });
+
+  localStorage.setItem("agendamentos", JSON.stringify(novaLista));
 }

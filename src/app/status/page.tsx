@@ -8,63 +8,77 @@ import {
 import { Agendamento } from "@/lib/types";
 import CancelamentoModal from "@/components/CancelamentoModal";
 import ConfirmacaoModal from "@/components/ConfirmacaoModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
+import Header from "@/components/HEADER";
 
 export default function StatusPage() {
   const [busca, setBusca] = useState("");
-  const [agendamento, setAgendamento] = useState<Agendamento | null>(null);
+  const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
+  const [idSelecionado, setIdSelecionado] = useState<string | null>(null);
+  
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const handleBuscar = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setErro(null);
-    setAgendamento(null);
+    setAgendamentos([]);
 
     try {
-      const resultado = await buscarAgendamentoPorContato(busca);
-      if (!resultado) {
+      const resultados = await buscarAgendamentoPorContato(busca);
+      if (!resultados || resultados.length === 0) {
         setErro("Nenhum agendamento encontrado com esse e-mail ou telefone.");
         return;
       }
-      setAgendamento(resultado);
+      setAgendamentos(resultados);
     } catch (error) {
       console.error("Erro ao buscar agendamento", error);
-      setErro("Não foi possível buscar o agendamento. Tente novamente.");
+      setErro("Não foi possível buscar os agendamentos. Tente novamente.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleConfirmarCancelamento = async () => {
-    if (!agendamento) return;
+    if (!idSelecionado) return;
     try {
-      await cancelarAgendamento(agendamento.id);
-      setAgendamento({ ...agendamento, status: "cancelado" });
+      await cancelarAgendamento(idSelecionado);
+      // Atualiza apenas o status do item correto na lista
+      setAgendamentos((prev) =>
+        prev.filter((ag) => ag.id !== idSelecionado)
+      );
+      
       setIsCancelModalOpen(false);
       toast.success("Agendamento cancelado com sucesso!");
     } catch (error) {
       console.error("Erro ao cancelar agendamento", error);
-      setErro("Não foi possível cancelar o agendamento. Tente novamente.");
       toast.error("Erro ao cancelar o agendamento.");
     }
   };
 
   const handleConfirmar = async () => {
-    if (!agendamento) return;
+    if (!idSelecionado) return;
     try {
-      if (confirmarAgendamento) {
-        await confirmarAgendamento(agendamento.id);
-      }
-
-      setAgendamento({ ...agendamento, status: "confirmado" });
+      await confirmarAgendamento(idSelecionado);
+      // Atualiza apenas o status do item correto na lista
+      setAgendamentos((prev) =>
+        prev.map((ag) =>
+          ag.id === idSelecionado ? { ...ag, status: "confirmado" } : ag
+        )
+      );
       setIsConfirmModalOpen(false);
       toast.success("Agendamento confirmado com sucesso!");
     } catch (error) {
@@ -73,9 +87,18 @@ export default function StatusPage() {
     }
   };
 
+  if (!isMounted) {
+    return null;
+  }
+
+  // Pega o objeto completo do agendamento selecionado para passar para os modais
+  const agendamentoSelecionado = agendamentos.find((ag) => ag.id === idSelecionado) || null;
+
   return (
-    <main className="grow py-12 bg-branco">
-      <div className="container mx-auto px-4 max-w-2xl">
+    <main className="grow py-12 pt-32 pb-12 md:pt-40">
+      <Header />
+
+      <div className="container mx-auto px-4 max-w-5xl">
         <div className="flex justify-between items-center w-full mb-6">
           <Link
             href="/"
@@ -97,105 +120,130 @@ export default function StatusPage() {
         </div>
 
         <h1 className="font-(family-name:--font-playfair) text-3xl sm:text-4xl font-bold text-center mb-2 text-primaria">
-          Consultar Agendamento
+          Consultar Agendamentos
         </h1>
         <p className="text-center text-secundaria mb-8">
-          Digite o e-mail ou telefone usado no momento do agendamento. (teste
-          com: ana@email.com, rodrigo@email.com ou mariana@email.com)
+          Digite o e-mail ou telefone usado no momento do agendamento.
         </p>
 
-        <form
-          onSubmit={handleBuscar}
-          className="flex flex-col sm:flex-row gap-3 mb-8"
-        >
-          <input
-            type="text"
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-            placeholder="E-mail ou telefone"
-            required
-            className="grow p-3 border border-bege rounded-2xl focus:outline-none focus:ring-2 focus:ring-vermelho"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-primaria text-white px-6 py-3 rounded-2xl hover:opacity-90 transition-opacity disabled:opacity-50"
+        <div className="max-w-2xl mx-auto">
+          <form
+            onSubmit={handleBuscar}
+            className="flex flex-col sm:flex-row gap-3 mb-8"
           >
-            {loading ? "Buscando..." : "Buscar"}
-          </button>
-        </form>
+            <input
+              type="text"
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              placeholder="E-mail ou telefone"
+              required
+              className="grow p-3 border border-bege rounded-2xl focus:outline-none focus:ring-2 focus:ring-vermelho"
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-primaria text-white px-6 py-3 rounded-2xl hover:opacity-90 transition-opacity disabled:opacity-50 cursor-pointer"
+            >
+              {loading ? "Buscando..." : "Buscar"}
+            </button>
+          </form>
+          {erro && <p className="text-center text-vermelho mb-6">{erro}</p>}
+        </div>
 
-        {erro && <p className="text-center text-vermelho mb-6">{erro}</p>}
+        {agendamentos.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+            {agendamentos.map((agendamento) => (
+              <div
+                key={agendamento.id}
+                className="bg-white rounded-2xl shadow-md p-6 flex flex-col border border-bege"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-primaria truncate pr-2">
+                    {agendamento.nomeCliente}
+                  </h2>
+                  <StatusBadge status={agendamento.status} />
+                </div>
 
-        {agendamento && (
-          <div className="bg-white rounded-2xl shadow-md p-6 space-y-4 border border-bege">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-primaria">
-                {agendamento.nomeCliente}
-              </h2>
-              <StatusBadge status={agendamento.status} />
-            </div>
+                <div className="grid grid-cols-2 gap-4 text-sm mb-4 grow">
+                  <div>
+                    <p className="text-secundaria">Serviço</p>
+                    <p className="font-medium">
+                      {agendamento.servico?.nome ?? "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-secundaria">Data</p>
+                    <p className="font-medium">
+                      {formatarData(agendamento.data)}
+                    </p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-secundaria">Horário</p>
+                    <p className="font-medium">
+                      {agendamento.horaInicio} - {agendamento.horaFim}
+                    </p>
+                  </div>
+                  {agendamento.descricao && (
+                    <div className="col-span-2">
+                      <p className="text-secundaria text-sm">Descrição</p>
+                      <p className="text-gray-700 mt-1 line-clamp-3">
+                        {agendamento.descricao}
+                      </p>
+                    </div>
+                  )}
+                </div>
 
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-secundaria">Serviço</p>
-                <p className="font-medium">
-                  {agendamento.servico?.nome ?? "—"}
-                </p>
-              </div>
-              <div>
-                <p className="text-secundaria">Data</p>
-                <p className="font-medium">{formatarData(agendamento.data)}</p>
-              </div>
-              <div>
-                <p className="text-secundaria">Horário</p>
-                <p className="font-medium">
-                  {agendamento.horaInicio} - {agendamento.horaFim}
-                </p>
-              </div>
-            </div>
+                {agendamento.status !== "cancelado" && (
+                  <div className="flex flex-col items-center gap-3 pt-4 border-t border-gray-100 mt-auto">
+                    <div className="flex flex-col sm:flex-row gap-3 w-full">
+                      {agendamento.status === "pendente" && (
+                        <button
+                          onClick={() => {
+                            setIdSelecionado(agendamento.id);
+                            setIsConfirmModalOpen(true);
+                          }}
+                          className="w-full sm:w-auto flex-1 px-4 py-2 text-sm rounded-xl border border-green-600 text-green-600 hover:bg-green-50 transition-colors cursor-pointer"
+                        >
+                          Confirmar
+                        </button>
+                      )}
 
-            {agendamento.descricao && (
-              <div>
-                <p className="text-secundaria text-sm">Descrição</p>
-                <p>{agendamento.descricao}</p>
-              </div>
-            )}
+                      <button
+                        onClick={() => {
+                          setIdSelecionado(agendamento.id);
+                          setIsCancelModalOpen(true);
+                        }}
+                        className="w-full sm:w-auto flex-1 px-4 py-2 text-sm rounded-xl border border-vermelho text-vermelho hover:bg-vermelho/10 transition-colors cursor-pointer"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
 
-            {agendamento.status !== "cancelado" && (
-              <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                {agendamento.status === "pendente" && (
-                  <button
-                    onClick={() => setIsConfirmModalOpen(true)}
-                    className="w-full sm:w-auto px-6 py-2 rounded-2xl border border-green-600 text-green-600 hover:bg-green-100 transition-colors"
-                  >
-                    Confirmar agendamento
-                  </button>
+                    <Link
+                      href={`/agendamentos?edit=${agendamento.id}`}
+                      className="text-xs font-medium text-gray-500 hover:text-primaria underline transition-colors"
+                    >
+                      Editar agendamento
+                    </Link>
+                  </div>
                 )}
-
-                <button
-                  onClick={() => setIsCancelModalOpen(true)}
-                  className="w-full sm:w-auto px-6 py-2 rounded-2xl border border-vermelho text-vermelho hover:bg-vermelho/10 transition-colors"
-                >
-                  Cancelar agendamento
-                </button>
               </div>
-            )}
+            ))}
           </div>
         )}
       </div>
 
-      {isCancelModalOpen && agendamento && (
+      {isCancelModalOpen && agendamentoSelecionado && (
         <CancelamentoModal
-          agendamento={agendamento}
+          agendamento={agendamentoSelecionado}
           onClose={() => setIsCancelModalOpen(false)}
           onConfirm={handleConfirmarCancelamento}
         />
       )}
 
-      {isConfirmModalOpen && agendamento && (
+      {isConfirmModalOpen && agendamentoSelecionado && (
         <ConfirmacaoModal
-          agendamento={agendamento}
+          agendamento={agendamentoSelecionado}
           onClose={() => setIsConfirmModalOpen(false)}
           onConfirm={handleConfirmar}
         />
@@ -210,18 +258,25 @@ function StatusBadge({ status }: { status: Agendamento["status"] }) {
     confirmado: { label: "Confirmado", classes: "bg-secundaria text-white" },
     cancelado: { label: "Cancelado", classes: "bg-vermelho text-white" },
   };
-  const { label, classes } = config[status];
+
+  const statusFormatado = status?.toLowerCase() as keyof typeof config;
+  const { label, classes } = config[statusFormatado] || config.pendente;
+
   return (
-    <span className={`text-xs font-medium px-3 py-1 rounded-2xl ${classes}`}>
+    <span className={`text-xs font-medium px-3 py-1 rounded-full ${classes}`}>
       {label}
     </span>
   );
 }
 
 function formatarData(dataIso: string) {
-  return new Date(dataIso).toLocaleDateString("pt-BR", {
+  if (!dataIso) return "—";
+  const parsedDate = new Date(dataIso);
+  if (isNaN(parsedDate.getTime())) return "—";
+
+  return parsedDate.toLocaleDateString("pt-BR", {
     day: "2-digit",
-    month: "long",
+    month: "short",
     year: "numeric",
   });
 }

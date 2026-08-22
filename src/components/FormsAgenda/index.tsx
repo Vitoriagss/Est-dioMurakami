@@ -5,11 +5,12 @@ import { Calendar } from "../ui/calendar";
 import { ptBR } from "date-fns/locale";
 import { Card, CardContent } from "../ui/card";
 import { DynamicTimePicker } from "../TimeSelecter";
-import { ChangeEvent, SubmitEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { format } from "date-fns";
 import { FormData } from "@/app/agendamentos/page";
 import { toast, ToastContainer } from "react-toastify";
+import { useSearchParams } from "next/navigation";
 
 interface FormsAgendaProps {
   formData: FormData;
@@ -35,25 +36,73 @@ export default function FormsAgenda({
   const inputStyle = "p-2 border border-bege rounded-lg w-full";
 
   const [errors, setErrors] = useState<FormErrors>({});
+  const [isMounted, setIsMounted] = useState(false);
+  const [horariosOcupados, setHorariosOcupados] = useState<string[]>([]);
+
+  const searchParams = useSearchParams();
+  const editId = searchParams.get("edit");
 
   useEffect(() => {
-    const savedData = localStorage.getItem("agendamento");
+    setIsMounted(true);
 
-    if (savedData) {
-      try {
-        const parsedData = JSON.parse(savedData);
+    if (editId) {
+      const savedData = localStorage.getItem("agendamentos");
+      if (savedData) {
+        try {
+          const parsedData = JSON.parse(savedData);
+          const itemParaEditar = parsedData.find((a: any) => a.id === editId);
 
-        if (parsedData.data) {
-          parsedData.data = new Date(parsedData.data);
+          if (itemParaEditar) {
+            setFormData({
+              nome: itemParaEditar.nomeCliente,
+              email: itemParaEditar.email,
+              telefone: itemParaEditar.telefone,
+              empresa: itemParaEditar.empresa || "",
+              tipo: itemParaEditar.tipo,
+              assunto: itemParaEditar.assunto,
+              data: new Date(itemParaEditar.data),
+              horario: itemParaEditar.horario || [],
+            });
+            toast.info("Modo de edição: você pode alterar seus dados.");
+          }
+        } catch (error) {
+          console.error("Erro ao carregar edição", error);
         }
-
-        setFormData(parsedData);
-        toast.info("Dados do último agendamento recarregados!");
-      } catch (error) {
-        console.error("Erro ao carregar dados do localStorage", error);
       }
     }
-  }, []);
+  }, [editId, setFormData]);
+
+  useEffect(() => {
+    if (!formData?.data) return;
+
+    const savedData = localStorage.getItem("agendamentos");
+    if (savedData) {
+      const parsedData = JSON.parse(savedData);
+
+      // Filtra os agendamentos do mesmo dia
+      const ocupadosNoDia = parsedData.filter((a: any) => {
+        // Ignora os cancelados
+        if (a.status === "cancelado") return false;
+        // Ignora o próprio agendamento sendo editado (para liberar o horário dele mesmo)
+        if (editId && a.id === editId) return false;
+
+        const dataSalva = new Date(a.data).toDateString();
+        const dataSelecionada = formData.data!.toDateString();
+        return dataSalva === dataSelecionada;
+      });
+
+      // Extrai todos os horários que já foram pegos
+      const arrayDeHorarios = ocupadosNoDia.flatMap(
+        (a: any) => a.horario || [],
+      );
+      setHorariosOcupados(arrayDeHorarios);
+    }
+  }, [formData?.data, editId]);
+
+  if (!isMounted) return <></>;
+
+  const horarios = formData?.horario || [];
+  const isButtonDisabled = !formData?.nome || !formData?.email;
 
   const FieldError = ({ message }: { message?: string }) => {
     if (!message) return null;
@@ -90,36 +139,36 @@ export default function FormsAgenda({
   const handleReservaConcluida = (range: string[]) => {
     setFormData((prev) => ({
       ...prev,
-      horario: range,
+      horario: Array.isArray(range) ? range : [],
     }));
   };
 
-  const handleSubmit = (e: SubmitEvent) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const newErrors: FormErrors = {};
 
-    if (formData.nome.trim().length < 3) {
+    if (!formData?.nome || formData.nome.trim().length < 3) {
       newErrors.nome = "O nome completo deve ter pelo menos 3 caracteres.";
     }
 
     const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
-    if (!isValidEmail(formData.email)) {
+    if (!formData?.email || !isValidEmail(formData.email)) {
       newErrors.email =
         "Por favor, insira um e-mail válido (ex: nome@dominio.com).";
     }
 
-    const phoneDigits = formData.telefone.replace(/\D/g, "");
+    const phoneDigits = (formData?.telefone || "").replace(/\D/g, "");
     if (phoneDigits.length < 10) {
       newErrors.telefone =
         "Informe um número de telefone/Whatsapp válido com DDD";
     }
 
-    if (!formData.tipo) {
+    if (!formData?.tipo) {
       newErrors.tipo = "Selecione ou digite o tipo de reunião.";
     }
 
-    if (!formData.data || formData.horario.length === 0) {
+    if (!formData?.data || horarios.length === 0) {
       newErrors.horario =
         "Por favor, selecione uma data e ao menos um horário!";
     }
@@ -132,8 +181,59 @@ export default function FormsAgenda({
       return;
     }
 
-    setErrors({}); // Limpa erros
-    toast.success("Agendamento enviado com sucesso!");
+    setErrors({});
+
+    const novoAgendamento = {
+      id: editId || crypto.randomUUID(), // Mantém o ID se for edição
+      nomeCliente: formData.nome,
+      nome: formData.nome,
+      email: formData.email,
+      telefone: formData.telefone,
+      empresa: formData.empresa,
+      tipo: formData.tipo,
+      assunto: formData.assunto,
+      descricao: formData.assunto,
+      servico: { nome: formData.tipo },
+      data: formData.data
+        ? formData.data.toISOString()
+        : new Date().toISOString(),
+      horaInicio: horarios[0] || "",
+      horaFim: horarios[horarios.length - 1] || "",
+      horario: horarios,
+      status: "pendente" as const,
+    };
+
+    try {
+      const dadosSalvos = localStorage.getItem("agendamentos");
+      const listaExistente = dadosSalvos ? JSON.parse(dadosSalvos) : [];
+      let novaLista;
+
+      if (editId) {
+        // Substitui o agendamento antigo pelo atualizado
+        novaLista = listaExistente.map((item: any) =>
+          item.id === editId ? novoAgendamento : item,
+        );
+      } else {
+        // Adiciona um novo
+        novaLista = Array.isArray(listaExistente)
+          ? [...listaExistente, novoAgendamento]
+          : [listaExistente, novoAgendamento];
+      }
+
+      localStorage.setItem("agendamentos", JSON.stringify(novaLista));
+      toast.success(
+        editId
+          ? "Agendamento atualizado com sucesso!"
+          : "Agendamento salvo com sucesso!",
+      );
+    } catch (error) {
+      console.error("Erro ao salvar:", error);
+      toast.error("Erro ao salvar os dados no navegador.");
+    }
+
+    if (onSubmitData) {
+      onSubmitData(formData);
+    }
 
     setFormData({
       nome: "",
@@ -145,19 +245,9 @@ export default function FormsAgenda({
       data: new Date(),
       horario: [],
     });
-
-    try {
-      const dataToSave = JSON.stringify(formData);
-
-      localStorage.setItem("agendamento", dataToSave);
-
-      toast.success("Agendamento salvo localmente!");
-    } catch (error) {
-      toast.error("Erro ao salvar os dados no navegador.");
-    }
   };
 
-  const dateFormatted = formData.data ? format(formData.data, "dd/MM") : "";
+  const dateFormatted = formData?.data ? format(formData.data, "dd/MM") : "";
 
   return (
     <form
@@ -167,7 +257,6 @@ export default function FormsAgenda({
     >
       <ToastContainer position="top-right" autoClose={3000} />
       <section className="flex flex-col py-12 px-6 gap-12 bg-gray-100 rounded-xl drop-shadow-xl w-full">
-        {/* Seção 1: Seus Dados */}
         <div className="flex flex-col gap-8">
           <div className="flex items-center gap-2">
             <span className="flex justify-center items-center bg-bege/50 w-7 h-7 rounded-full shrink-0 font-semibold">
@@ -183,7 +272,7 @@ export default function FormsAgenda({
                 placeholder="Ana Paula"
                 className={`${inputStyle} ${errors.nome ? "border-red-500 bg-red-50" : ""}`}
                 name="nome"
-                value={formData.nome}
+                value={formData?.nome || ""}
                 onChange={handleChange}
                 required
               />
@@ -196,7 +285,7 @@ export default function FormsAgenda({
                 placeholder="anapaula@exemplo.com"
                 className={`${inputStyle} ${errors.email ? "border-red-500 bg-red-50" : ""}`}
                 name="email"
-                value={formData.email}
+                value={formData?.email || ""}
                 onChange={handleChange}
                 required
               />
@@ -209,7 +298,7 @@ export default function FormsAgenda({
                 placeholder="(99) 99999-9999"
                 className={`${inputStyle} ${errors.telefone ? "border-red-500 bg-red-50" : ""}`}
                 name="telefone"
-                value={formData.telefone}
+                value={formData?.telefone || ""}
                 onChange={handleChange}
                 required
               />
@@ -222,14 +311,13 @@ export default function FormsAgenda({
                 placeholder="Nome da minha empresa"
                 className={`${inputStyle}`}
                 name="empresa"
-                value={formData.empresa}
+                value={formData?.empresa || ""}
                 onChange={handleChange}
               />
             </div>
           </div>
         </div>
 
-        {/* Seção 2: Detalhes Reunião */}
         <div className="flex flex-col gap-8">
           <div className="flex items-center gap-2">
             <span className="flex justify-center items-center bg-bege/50 w-7 h-7 rounded-full shrink-0 font-semibold">
@@ -245,7 +333,7 @@ export default function FormsAgenda({
                 className={`${inputStyle} ${errors.tipo ? "border-red-500 bg-red-50" : ""}`}
                 placeholder="Consultoria Inicial"
                 name="tipo"
-                value={formData.tipo}
+                value={formData?.tipo || ""}
                 onChange={handleChange}
                 required
               />
@@ -257,7 +345,7 @@ export default function FormsAgenda({
                 className={`${inputStyle} ${errors.assunto ? "border-red-500 bg-red-50" : ""}`}
                 placeholder="Digite aqui brevemente o que gostaria de abordar..."
                 name="assunto"
-                value={formData.assunto}
+                value={formData?.assunto || ""}
                 onChange={handleChange}
                 required
               />
@@ -266,7 +354,6 @@ export default function FormsAgenda({
           </div>
         </div>
 
-        {/* Seção 3: Data e Horário */}
         <div className="flex flex-col gap-8">
           <div className="flex items-center gap-2">
             <span className="flex justify-center items-center bg-bege/50 w-7 h-7 rounded-full shrink-0 font-semibold">
@@ -282,7 +369,7 @@ export default function FormsAgenda({
                 <Calendar
                   mode="single"
                   locale={ptBR}
-                  selected={formData.data}
+                  selected={formData?.data}
                   onSelect={handleDateChange}
                   className="p-0 [--cell-size:--spacing(8)]"
                 />
@@ -294,20 +381,22 @@ export default function FormsAgenda({
               </h3>
               <div>
                 <DynamicTimePicker
-                  selectedDate={formData.data}
+                  selectedDate={formData?.data}
                   onReserveSuccess={handleReservaConcluida}
+                  horariosOcupados={horariosOcupados}
                 />
               </div>
 
-              {formData.horario.length > 0 && (
+              {horarios.length > 0 && (
                 <div className="p-2 bg-bege/30 rounded text-sm text-center border">
                   Intervalo selecionado:{" "}
                   <strong>
-                    {formData.horario[0]} até{" "}
-                    {formData.horario[formData.horario.length - 1]}
+                    {horarios[0]} até {horarios[horarios.length - 1]}
                   </strong>
                 </div>
               )}
+
+              <FieldError message={errors.horario} />
 
               <p className="text-gray-500 text-xs">
                 Fuso horário: Horário de Brasília (GMT-3)
@@ -318,7 +407,7 @@ export default function FormsAgenda({
           <div className="flex flex-col items-center gap-4">
             <button
               type="submit"
-              disabled={!formData.data || formData.horario.length === 0}
+              disabled={isButtonDisabled}
               className="flex justify-center items-center gap-2 bg-primaria text-branco hover:scale-102 cursor-pointer py-4 rounded-lg w-full transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Confirmar Agendamento <ArrowRight />
